@@ -32,7 +32,7 @@ CREATE TABLE StudentBranches(
 );
 
 CREATE TABLE Classifications(
-      name TEXT(2) PRIMARY KEY NOT NULL
+    name TEXT(2) PRIMARY KEY NOT NULL
 );
 
 CREATE TABLE Classified(
@@ -41,48 +41,7 @@ CREATE TABLE Classified(
     PRIMARY KEY(course, classification)
 );
 
-
-CREATE TABLE MandatoryBranch(
-    course VARCHAR(6),
-    branch TEXT,
-    program TEXT(5),
-    PRIMARY KEY (course, branch, program),
-    FOREIGN KEY (course) REFERENCES Courses (code),
-    FOREIGN KEY (branch, program) REFERENCES Branches (name, program),
-);
-
-CREATE TABLE RecommendedBranch(
-    course VARCHAR(6),
-    branch TEXT,
-    program TEXT(5),
-    PRIMARY KEY (course, branch, program),
-    FOREIGN KEY (course) REFERENCES Courses (code),
-    FOREIGN KEY (branch, program) REFERENCES Branches (name, program),
-);
-
-CREATE TABLE Registered(
-    student TEXT,
-    course VARCHAR(6),
-    PRIMARY KEY (student, course),
-    FOREIGN KEY (student) REFERENCES Students (idnr),
-    FOREIGN KEY (course) REFERENCES Courses (code),
-);
-
-CREATE TABLE Taken(
-    student TEXT,
-    course VARCHAR(6),
-    grade INT(1) NOT NULL,
-    PRIMARY KEY (student,course),
-    FOREIGN KEY (student) REFERENCES Students (idnr),
-    FOREIGN KEY (course) REFERENCES Courses (code),
-);
-
-CREATE TABLE WaitingList(
-    student TEXT,
-    course VARCHAR(6),
-    position INT (1) NOT NULL,
-    PRIMARY KEY(student,course),
-    FOREIGN KEY (student) REFERENCES Students (idnr),
-    FOREIGN KEY (course) REFERENCES LimitedCourses (code)
-
+CREATE TABLE MandatoryProgram(
+    PRIMARY KEY program TEXT(5) NOT NULL,
+    FOREIGN KEY (code) REFERENCES Courses (code)
 );
