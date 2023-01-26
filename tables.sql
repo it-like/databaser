@@ -32,7 +32,7 @@ CREATE TABLE StudentBranches(
 );
 
 CREATE TABLE Classifications(
-    name TEXT(2) PRIMARY KEY NOT NULL
+      name TEXT(2) PRIMARY KEY NOT NULL
 );
 
 CREATE TABLE Classified(
@@ -45,7 +45,6 @@ CREATE TABLE MandatoryProgram(
     PRIMARY KEY program TEXT(5) NOT NULL,
     FOREIGN KEY (code) REFERENCES Courses (code)
 );
-
 
 CREATE TABLE MandatoryBranch(
     course VARCHAR(6),
