@@ -8,8 +8,10 @@ CREATE VIEW BasicInformation AS
     
 --SELECT student, course, grade, credits FROM FinishedCourses ORDER BY student;
 
-
-
+CREATE VIEW FinishedCourses AS
+    SELECT student, course, grade, Courses.credits
+    FROM Taken, Students, Courses
+    Where student = Students.idnr AND course = Courses.code AND credits = Courses.credits;
 
 --SELECT student, course, credits FROM PassedCourses ORDER BY student;
 CREATE VIEW PassedCourses AS
