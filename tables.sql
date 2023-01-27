@@ -21,7 +21,7 @@ CREATE TABLE Courses(
 
 CREATE TABLE LimitedCourses(
     code VARCHAR(6) UNIQUE,
-    capacity INT NOT NULL,--vafan är TINYINT??
+    capacity CHAR NOT NULL,--vafan är TINYINT??
     FOREIGN KEY (code) REFERENCES Courses(code)
 );
     
