@@ -95,3 +95,4 @@ CREATE TABLE WaitingList(
     FOREIGN KEY (course) REFERENCES LimitedCourses (code)
 
 );
+
