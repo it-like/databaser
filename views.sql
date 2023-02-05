@@ -32,7 +32,7 @@ CREATE VIEW UnreadMandatory AS
     FROM Taken, MandatoryProgram
     WHERE code != course;
 
-CREATE VIEW CountMathCredits AS
+create view CountMathCredits AS
     SELECT student, SUM(PassedCourses.credits) AS sumCredits   
     FROM PassedCourses, Classified
     WHERE PassedCourses.course = Classified.code AND Classified.classification LIKE 'math'
@@ -45,34 +45,46 @@ CREATE VIEW CountResearchCredits AS
     WHERE PassedCourses.course = Classified.code AND Classified.classification LIKE 'research'
     GROUP BY student;
 
-CREATE VIEW AllMandatory AS --All mandatory courses from branch and program
+CREATE VIEW AllMandatory AS -- All mandatory courses from branch and 
     SELECT code FROM MandatoryProgram
     UNION 
-    SELECT course FROM MandatoryBranch; 
+    SELECT course FROM MandatoryBranch ; 
     
-CREATE VIEW Seminar AS --Passed couses of the classification "seminar"
-SELECT course FROM PassedCourses
-INTERSECT
-SELECT code FROM Classified
-WHERE classification = 'seminar';
+CREATE VIEW CountSeminarCourses AS
+    SELECT student, COUNT(PassedCourses.course) AS sumSeminars
+    FROM PassedCourses, Classified
+    WHERE PassedCourses.course = Classified.code AND Classified.classification LIKE 'seminar'
+    GROUP BY student;
 -- sums all the students 
 
-/*
+
+CREATE VIEW RecomendedCredits AS
+    SELECT student, SUM(PassedCourses.credits) AS sumCredits
+    FROM PassedCourses, RecommendedBranch
+    WHERE PassedCourses.course = RecommendedBranch.course
+    GROUP BY student;
+
+
 --SELECT student, totalCredits, mandatoryLeft, mathCredits, researchCredits, seminarCourses, qualified FROM PathToGraduation ORDER BY student;
 CREATE VIEW PathToGraduation AS 
-    SELECT 1,
-    SUM(credits) FROM PassedCourses,
-    COUNT(UnreadMandatory.course),
-    CountMathCredits.sumCredits, 
-    CountResearchCredits.sumCredits,
-    CountSeminarCourses.sumCourses,
-        mandatoryLeft == NULL
-        AND seminarCourses > 0 
-        AND totalCredits >=10 
-        AND mathCredits >= 20 
-        AND researchCredits >= 10 
-        AND seminarCourses
-    IS NULL THEN "False" ELSE "True"
-    END
-    FROM Taken, Courses
-    WHERE student = Taken.student AND taken.course = code AND student.idnr = taken.student AND Classified.course = code; */
+    SELECT idnr,
+    SUM(PassedCourses.credits) AS totalCredits,
+    UnreadMandatory.course AS mandatoryLeft,
+    CountMathCredits.sumCredits AS mathCredits, 
+    CountResearchCredits.sumCredits AS researchCredits,
+    CountSeminarCourses.sumSeminars AS seminarCourses,
+    CASE 
+        WHEN
+            mandatoryLeft IS NULL  
+            AND seminarCourses > 0 
+            AND (SELECT AllMandatory EXCEPT SELECT PassedCourses.course IS NULL)
+            AND RecomendedCredits >= 10
+            AND totalCredits >=10 
+            AND mathCredits >= 20 
+            AND researchCredits >= 10 
+            AND CountSeminarCourses > 0
+    THEN TRUE 
+    ELSE FALSE
+    END as qualified
+    FROM BasicInformation, PassedCourses, UnreadMandatory,CountMathCredits, CountResearchCredits, CountSeminarCourses
+    WHERE idnr = PassedCourses.student AND idnr = UnreadMandatory.student AND idnr = CountMathCredits.student;
