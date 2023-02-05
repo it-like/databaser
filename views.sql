@@ -64,27 +64,31 @@ CREATE VIEW RecomendedCredits AS
     WHERE PassedCourses.course = RecommendedBranch.course
     GROUP BY student;
 
+CREATE VIEW TotalCredits AS
+    SELECT student, SUM(PassedCourses.credits) AS sumCredits
+    FROM PassedCourses
+    GROUP BY student;
 
 --SELECT student, totalCredits, mandatoryLeft, mathCredits, researchCredits, seminarCourses, qualified FROM PathToGraduation ORDER BY student;
 CREATE VIEW PathToGraduation AS 
     SELECT idnr,
-    SUM(PassedCourses.credits) AS totalCredits,
-    UnreadMandatory.course AS mandatoryLeft,
-    CountMathCredits.sumCredits AS mathCredits, 
-    CountResearchCredits.sumCredits AS researchCredits,
-    CountSeminarCourses.sumSeminars AS seminarCourses,
+    TotalCredits,
+    UnreadMandatory.course ,
+    CountMathCredits.sumCredits, 
+    CountResearchCredits.sumCredits,
+    CountSeminarCourses.sumSeminars,
     CASE 
         WHEN
-            mandatoryLeft IS NULL  
-            AND seminarCourses > 0 
-            AND (SELECT AllMandatory EXCEPT SELECT PassedCourses.course IS NULL)
-            AND RecomendedCredits >= 10
-            AND totalCredits >=10 
-            AND mathCredits >= 20 
-            AND researchCredits >= 10 
-            AND CountSeminarCourses > 0
+            UnreadMandatory.course IS NULL
+            --AND (SELECT AllMandatory EXCEPT PassedCourses.course IS NULL)
+            AND RecomendedCredits.sumCredits >= 10
+            AND TotalCredits.sumCredits >=10 
+            AND CountMathCredits.sumCredits >= 20 
+            AND CountResearchCredits.sumCredits >= 10 
+            AND CountSeminarCourses.sumSeminars > 0
     THEN TRUE 
     ELSE FALSE
     END as qualified
-    FROM BasicInformation, PassedCourses, UnreadMandatory,CountMathCredits, CountResearchCredits, CountSeminarCourses
-    WHERE idnr = PassedCourses.student AND idnr = UnreadMandatory.student AND idnr = CountMathCredits.student;
+    FROM Students, TotalCredits, UnreadMandatory, CountMathCredits, CountResearchCredits, CountSeminarCourses, RecomendedCredits
+    WHERE idnr = TotalCredits.student AND idnr = UnreadMandatory.student AND idnr = CountMathCredits.student
+    GROUP BY idnr;
