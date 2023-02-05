@@ -8,7 +8,6 @@ INSERT INTO Students VALUES ('3333333333','N3','ls3','Prog2');
 INSERT INTO Students VALUES ('4444444444','N4','ls4','Prog1');
 INSERT INTO Students VALUES ('5555555555','Nx','ls5','Prog2');
 INSERT INTO Students VALUES ('6666666666','Nx','ls6','Prog2');
-SELECT * FROM Students;
 INSERT INTO Courses VALUES ('CCC111','C1',22.5,'Dep1');
 INSERT INTO Courses VALUES ('CCC222','C2',20,'Dep1');
 INSERT INTO Courses VALUES ('CCC333','C3',30,'Dep1');
@@ -21,6 +20,7 @@ INSERT INTO LimitedCourses VALUES ('CCC333',2);
 INSERT INTO Classifications VALUES ('math');
 INSERT INTO Classifications VALUES ('research');
 INSERT INTO Classifications VALUES ('seminar');
+
 
 INSERT INTO Classified VALUES ('CCC333','math');
 INSERT INTO Classified VALUES ('CCC444','math');

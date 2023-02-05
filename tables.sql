@@ -1,6 +1,5 @@
 CREATE TABLE Students(
     idnr    TEXT PRIMARY KEY NOT NULL,
-    --CHECK (idnr LIKE '%[0-9]%{10}'),
     name    TEXT NOT NULL,
     login   TEXT NOT NULL,
     program TEXT NOT NULL
@@ -15,7 +14,7 @@ CREATE TABLE Branches(
 CREATE TABLE Courses(
     code VARCHAR(6) PRIMARY KEY NOT NULL,
     name    TEXT NOT NULL,
-    credits TEXT NOT NULL,
+    credits float(4) NOT NULL,
     department  TEXT NOT NULL
 );
 
@@ -38,11 +37,11 @@ CREATE TABLE Classifications(
 );
 
 CREATE TABLE Classified(
-    course VARCHAR(6),
+    code VARCHAR(6),
     classification TEXT,
-    FOREIGN KEY (course) REFERENCES Courses (code),
+    FOREIGN KEY (code) REFERENCES Courses (code),
     FOREIGN KEY (classification) REFERENCES Classifications (name),
-    PRIMARY KEY(course, classification)
+    PRIMARY KEY(code, classification)
 );
 
 CREATE TABLE MandatoryProgram(
