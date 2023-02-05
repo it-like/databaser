@@ -33,17 +33,24 @@ CREATE VIEW UnreadMandatory AS
     WHERE code != course;
 
 create view countMathCredits AS
-    Select student, SUM(PassedCourses.credits) AS mathCredits   
-    from PassedCourses, Classified
-    where PassedCourses.course = Classified.code and Classified.classification like 'math'
+    SELECT student, SUM(PassedCourses.credits) AS mathCredits   
+    FROM PassedCourses, Classified
+    WHERE PassedCourses.course = Classified.code AND Classified.classification LIKE 'math'
     GROUP BY student;
 
 
-create view countSeminarCredits AS
-    Select student, SUM(PassedCourses.credits) AS mathCredits   
-    from PassedCourses, Classified
-    where PassedCourses.course = Classified.code and Classified.classification like 'seminar'
+CREATE VIEW countSeminarCredits AS
+    SELECT student, SUM(PassedCourses.credits) AS mathCredits   
+    frFROMom PassedCourses, Classified
+    WHERE PassedCourses.course = Classified.code AND Classified.classification LIKE 'seminar'
     GROUP BY student;
+
+CREATE VIEW AllMandatory AS
+    SELECT 
+    code FROM MandatoryProgram 
+    UNION 
+    course FROM MandatoryBranch 
+    WHERE MandatoryBranch.program = MandatoryProgram.program
 -- if passedCourses.course = Classified.code
  --select course from PassedCourses; -- if course same code as classificaiont in math
 

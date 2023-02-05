@@ -12,14 +12,14 @@ CREATE TABLE Branches(
 );
 
 CREATE TABLE Courses(
-    code VARCHAR(6) PRIMARY KEY NOT NULL,
+    code CHAR(6) PRIMARY KEY NOT NULL,
     name    TEXT NOT NULL,
-    credits float(4) NOT NULL,
+    credits FLOAT(4) NOT NULL,
     department  TEXT NOT NULL
 );
 
 CREATE TABLE LimitedCourses(
-    code VARCHAR(6) UNIQUE,
+    code CHAR(6) UNIQUE,
     capacity CHAR NOT NULL,--vafan är TINYINT??
     FOREIGN KEY (code) REFERENCES Courses(code)
 );
@@ -37,7 +37,7 @@ CREATE TABLE Classifications(
 );
 
 CREATE TABLE Classified(
-    code VARCHAR(6),
+    code CHAR(6),
     classification TEXT,
     FOREIGN KEY (code) REFERENCES Courses (code),
     FOREIGN KEY (classification) REFERENCES Classifications (name),
@@ -45,13 +45,13 @@ CREATE TABLE Classified(
 );
 
 CREATE TABLE MandatoryProgram(
-    code VARCHAR(6),
+    code CHAR(6),
     program TEXT PRIMARY KEY NOT NULL,
     FOREIGN KEY (code) REFERENCES Courses (code)
 );
 
 CREATE TABLE MandatoryBranch(
-    course VARCHAR(6),
+    course CHAR(6),
     branch TEXT,
     program TEXT,
     PRIMARY KEY (course, branch, program),
@@ -60,7 +60,7 @@ CREATE TABLE MandatoryBranch(
 );
 
 CREATE TABLE RecommendedBranch(
-    course VARCHAR(6),
+    course CHAR(6),
     branch TEXT,
     program TEXT,
     PRIMARY KEY (course, branch, program),
@@ -70,7 +70,7 @@ CREATE TABLE RecommendedBranch(
 
 CREATE TABLE Registered(
     student TEXT,
-    course VARCHAR(6),
+    course CHAR(6),
     PRIMARY KEY (student, course),
     FOREIGN KEY (student) REFERENCES Students (idnr),
     FOREIGN KEY (course) REFERENCES Courses (code)
@@ -78,7 +78,7 @@ CREATE TABLE Registered(
 
 CREATE TABLE Taken(
     student TEXT,
-    course VARCHAR(6),
+    course CHAR(6),
     grade TEXT CHECK (NOT NULL AND grade IN ('U','3','4','5')),
     PRIMARY KEY (student,course),
     FOREIGN KEY (student) REFERENCES Students (idnr),
@@ -87,7 +87,7 @@ CREATE TABLE Taken(
 
 CREATE TABLE WaitingList(
     student TEXT,
-    course VARCHAR(6),
+    course CHAR(6),
     position INT NOT NULL,
     PRIMARY KEY(student,course),
     FOREIGN KEY (student) REFERENCES Students (idnr),
