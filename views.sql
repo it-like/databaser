@@ -32,57 +32,47 @@ CREATE VIEW UnreadMandatory AS
     FROM Taken, MandatoryProgram
     WHERE code != course;
 
-create view countMathCredits AS
-    SELECT student, SUM(PassedCourses.credits) AS mathCredits   
+CREATE VIEW CountMathCredits AS
+    SELECT student, SUM(PassedCourses.credits) AS sumCredits   
     FROM PassedCourses, Classified
     WHERE PassedCourses.course = Classified.code AND Classified.classification LIKE 'math'
     GROUP BY student;
 
 
-CREATE VIEW countSeminarCredits AS
-    SELECT student, SUM(PassedCourses.credits) AS mathCredits   
-    frFROMom PassedCourses, Classified
-    WHERE PassedCourses.course = Classified.code AND Classified.classification LIKE 'seminar'
-    GROUP BY student;
-
-CREATE VIEW AllMandatory AS
-    SELECT 
-    code FROM MandatoryProgram 
-    UNION 
-    course FROM MandatoryBranch 
-    WHERE MandatoryBranch.program = MandatoryProgram.program
--- if passedCourses.course = Classified.code
- --select course from PassedCourses; -- if course same code as classificaiont in math
-
-
-/*
-create view countMathCourses AS
-    SELECT student, SUM(PassedCourses.credits) AS mathCredits
+CREATE VIEW CountResearchCredits AS
+    SELECT student, SUM(PassedCourses.credits) AS sumCredits   
     FROM PassedCourses, Classified
-    where Classified.classification like 'math'
+    WHERE PassedCourses.course = Classified.code AND Classified.classification LIKE 'research'
     GROUP BY student;
--- sums all the students 
-*/
 
+CREATE VIEW AllMandatory AS --All mandatory courses from branch and program
+    SELECT code FROM MandatoryProgram
+    UNION 
+    SELECT course FROM MandatoryBranch; 
+    
+CREATE VIEW Seminar AS --Passed couses of the classification "seminar"
+SELECT course FROM PassedCourses
+INTERSECT
+SELECT code FROM Classified
+WHERE classification = 'seminar';
+-- sums all the students 
 
 /*
 --SELECT student, totalCredits, mandatoryLeft, mathCredits, researchCredits, seminarCourses, qualified FROM PathToGraduation ORDER BY student;
 CREATE VIEW PathToGraduation AS 
     SELECT 1,
-    SUM(PassedCourses.credits),
+    SUM(credits) FROM PassedCourses,
     COUNT(UnreadMandatory.course),
-    SUM(credits) INTERSECT SELECT Classified.classification = 'math', 
-    SUM(credits) INTERSECT SELECT Classified.classification = 'research',
-    COUNT(PassedCourses.course) INTERSECT SELECT Classified.classification = 'research', 
-    CASE WHEN
-        mandatoryLeft IS NULL AND UnreadMandatory IS NOT NULL 
+    CountMathCredits.sumCredits, 
+    CountResearchCredits.sumCredits,
+    CountSeminarCourses.sumCourses,
+        mandatoryLeft == NULL
         AND seminarCourses > 0 
-        AND SUM(PassedCourses.credits) >=10 
+        AND totalCredits >=10 
         AND mathCredits >= 20 
         AND researchCredits >= 10 
         AND seminarCourses
     IS NULL THEN "False" ELSE "True"
     END
     FROM Taken, Courses
-    WHERE student = Taken.student AND taken.course = code AND student.idnr = taken.student AND Classified.course = code;
-*/  
+    WHERE student = Taken.student AND taken.course = code AND student.idnr = taken.student AND Classified.course = code; */

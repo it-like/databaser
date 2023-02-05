@@ -26,13 +26,12 @@ SET client_min_messages TO NOTICE; -- More talk
 
 --SELECT student, course, grade, credits FROM FinishedCourses ORDER BY student;
 
---SELECT student, course, credits FROM PassedCourses ORDER BY student;
+SELECT student, course, credits FROM PassedCourses ORDER BY student;
 
 --SELECT student, course, status FROM Registrations ORDER BY student;
 
 --SELECT student, course FROM UnreadMandatory ORDER BY student;   
 
-select * from countMathCourses;
 
 --SELECT student, totalCredits, mandatoryLeft, mathCredits, researchCredits, seminarCourses, qualified FROM PathToGraduation ORDER BY student;
 
