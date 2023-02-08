@@ -29,18 +29,22 @@ CREATE VIEW Registrations AS
 --SELECT student, course FROM UnreadMandatory ORDER BY student;
 CREATE VIEW UnreadMandatory AS
     SELECT student, course
-    FROM Taken, MandatoryProgram
-    WHERE code != course;
+    FROM PassedCourses, MandatoryProgram
+    WHERE MandatoryProgram.code != PassedCourses.course;
 
 create view CountMathCredits AS
+<<<<<<< HEAD
     SELECT student, SUM(PassedCourses.credits) AS sumCredits   
+=======
+    SELECT student, SUM(PassedCourses.credits) AS sumCredits  
+>>>>>>> 057555cd83fe5e3b1429c544f773e6b727679bf5
     FROM PassedCourses, Classified
     WHERE PassedCourses.course = Classified.code AND Classified.classification LIKE 'math';
     --GROUP BY student;
 
 
 CREATE VIEW CountResearchCredits AS
-    SELECT student, SUM(PassedCourses.credits) AS sumCredits   
+    SELECT student, SUM(PassedCourses.credits) AS sumCreditsRe  
     FROM PassedCourses, Classified
     WHERE PassedCourses.course = Classified.code AND Classified.classification LIKE 'research';
    -- GROUP BY student;
@@ -50,6 +54,7 @@ CREATE VIEW AllMandatory AS -- All mandatory courses from branch and
     UNION 
     SELECT course FROM MandatoryBranch ; 
     
+<<<<<<< HEAD
 CREATE VIEW CountSeminarCourses AS
     SELECT student, COUNT(PassedCourses.course) AS sumSeminars
     FROM PassedCourses, Classified
@@ -92,3 +97,54 @@ CREATE VIEW PathToGraduation AS
     FROM Students, TotalCredits, UnreadMandatory, CountMathCredits, CountResearchCredits, CountSeminarCourses, RecomendedCredits
     WHERE idnr = TotalCredits.student AND idnr = UnreadMandatory.student AND idnr = CountMathCredits.student
     GROUP BY idnr;
+=======
+
+CREATE VIEW CountSeminarCourses AS
+    SELECT student, COUNT(PassedCourses.course) AS sumSeminars
+    FROM PassedCourses, Classified
+    WHERE PassedCourses.course = Classified.code AND Classified.classification LIKE 'seminar'
+    GROUP BY student;
+
+
+
+CREATE VIEW RecommendedCredits AS
+    SELECT student, SUM(PassedCourses.credits) AS sumCreditsRec
+    FROM PassedCourses, RecommendedBranch
+    WHERE PassedCourses.course = RecommendedBranch.course
+    GROUP BY student;
+
+
+CREATE VIEW CountUnreadMandatory AS
+    SELECT student, COUNT(UnreadMandatory.course) AS amountOfMandatoryLeft
+    FROM UnreadMandatory
+    GROUP BY student;
+
+CREATE VIEW TotalCredits AS
+    SELECT student, SUM(PassedCourses.credits) AS sumCreditsTot
+    FROM PassedCourses
+    GROUP BY student;
+
+
+--SELECT student, totalCredits, mandatoryLeft, mathCredits, researchCredits, seminarCourses, qualified FROM PathToGraduation ORDER BY student;
+CREATE VIEW PathToGraduation AS 
+    SELECT Students.idnr AS student,
+    TotalCredits.sumCreditsTot AS totalCredits,
+    CountUnreadMandatory.amountOfMandatoryLeft AS mandatoryLeft, 
+    CountMathCredits.sumCredits AS mathCredits,
+    CountResearchCredits.sumCreditsRe AS researchCredits,
+    CountSeminarCourses.sumSeminars AS seminarCourses,
+    CASE 
+        WHEN     CountSeminarCourses.sumSeminars > 0 
+            AND  RecommendedCredits.sumCreditsRec >= 10
+            AND  TotalCredits.sumCreditsTot >=10 
+            AND  CountMathCredits.sumCredits >= 70 
+            AND  CountResearchCredits.sumCreditsRe >= 10 
+    THEN 'TRUE' 
+    ELSE 'FALSE'
+    END AS qualified
+    FROM Students, CountUnreadMandatory, CountMathCredits, CountResearchCredits, CountSeminarCourses, RecommendedCredits, TotalCredits
+    where Students.idnr = CountMathCredits.student AND NOT Students.idnr = CountUnreadMandatory.student AND Students.idnr = TotalCredits.student
+    GROUP BY (Students.idnr, TotalCredits.sumCreditsTot, CountUnreadMandatory.amountOfMandatoryLeft, CountMathCredits.sumCredits, CountResearchCredits.sumCreditsRe,
+    CountSeminarCourses.sumSeminars, qualified); 
+    
+>>>>>>> 057555cd83fe5e3b1429c544f773e6b727679bf5
