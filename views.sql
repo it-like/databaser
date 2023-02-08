@@ -35,15 +35,15 @@ CREATE VIEW UnreadMandatory AS
 create view CountMathCredits AS
     SELECT student, SUM(PassedCourses.credits) AS sumCredits   
     FROM PassedCourses, Classified
-    WHERE PassedCourses.course = Classified.code AND Classified.classification LIKE 'math'
-    GROUP BY student;
+    WHERE PassedCourses.course = Classified.code AND Classified.classification LIKE 'math';
+    --GROUP BY student;
 
 
 CREATE VIEW CountResearchCredits AS
     SELECT student, SUM(PassedCourses.credits) AS sumCredits   
     FROM PassedCourses, Classified
-    WHERE PassedCourses.course = Classified.code AND Classified.classification LIKE 'research'
-    GROUP BY student;
+    WHERE PassedCourses.course = Classified.code AND Classified.classification LIKE 'research';
+   -- GROUP BY student;
 
 CREATE VIEW AllMandatory AS -- All mandatory courses from branch and 
     SELECT code FROM MandatoryProgram
@@ -53,21 +53,21 @@ CREATE VIEW AllMandatory AS -- All mandatory courses from branch and
 CREATE VIEW CountSeminarCourses AS
     SELECT student, COUNT(PassedCourses.course) AS sumSeminars
     FROM PassedCourses, Classified
-    WHERE PassedCourses.course = Classified.code AND Classified.classification LIKE 'seminar'
-    GROUP BY student;
+    WHERE PassedCourses.course = Classified.code AND Classified.classification LIKE 'seminar';
+    --GROUP BY student;
 -- sums all the students 
 
 
 CREATE VIEW RecomendedCredits AS
     SELECT student, SUM(PassedCourses.credits) AS sumCredits
     FROM PassedCourses, RecommendedBranch
-    WHERE PassedCourses.course = RecommendedBranch.course
-    GROUP BY student;
+    WHERE PassedCourses.course = RecommendedBranch.course;
+    --GROUP BY student;
 
 CREATE VIEW TotalCredits AS
-    SELECT student, SUM(PassedCourses.credits) AS sumCredits
-    FROM PassedCourses
-    GROUP BY student;
+    SELECT student, SUM(PassedCourses.credits) AS sumCredits;
+    FROM PassedCourses;
+    --GROUP BY student;
 
 --SELECT student, totalCredits, mandatoryLeft, mathCredits, researchCredits, seminarCourses, qualified FROM PathToGraduation ORDER BY student;
 CREATE VIEW PathToGraduation AS 
@@ -82,7 +82,7 @@ CREATE VIEW PathToGraduation AS
             UnreadMandatory.course IS NULL
             --AND (SELECT AllMandatory EXCEPT PassedCourses.course IS NULL)
             AND RecomendedCredits.sumCredits >= 10
-            AND TotalCredits.sumCredits >=10 
+            AND TotalCredits.sumCredits >= 10 
             AND CountMathCredits.sumCredits >= 20 
             AND CountResearchCredits.sumCredits >= 10 
             AND CountSeminarCourses.sumSeminars > 0
