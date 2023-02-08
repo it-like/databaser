@@ -5,11 +5,13 @@ CREATE TABLE Students(
     program TEXT NOT NULL
 );
 
+
 CREATE TABLE Branches(
     name    TEXT NOT NULL,
     program TEXT NOT NULL,
     PRIMARY KEY (name, program)
 );
+
 
 CREATE TABLE Courses(
     code CHAR(6) PRIMARY KEY NOT NULL,
@@ -18,12 +20,14 @@ CREATE TABLE Courses(
     department  TEXT NOT NULL
 );
 
+
 CREATE TABLE LimitedCourses(
     code CHAR(6) UNIQUE,
     capacity CHAR NOT NULL,--vafan är TINYINT??
     FOREIGN KEY (code) REFERENCES Courses(code)
 );
     
+
 CREATE TABLE StudentBranches(
     student TEXT NOT NULL,
     branch TEXT NOT NULL,
@@ -32,9 +36,11 @@ CREATE TABLE StudentBranches(
     FOREIGN KEY (branch, program) REFERENCES Branches (name, program)
 );
 
+
 CREATE TABLE Classifications(
       name TEXT PRIMARY KEY NOT NULL
 );
+
 
 CREATE TABLE Classified(
     code CHAR(6),
@@ -44,11 +50,14 @@ CREATE TABLE Classified(
     PRIMARY KEY(code, classification)
 );
 
+
 CREATE TABLE MandatoryProgram(
     code CHAR(6),
     program TEXT PRIMARY KEY NOT NULL,
+    PRIMARY KEY(code, program)
     FOREIGN KEY (code) REFERENCES Courses (code)
 );
+
 
 CREATE TABLE MandatoryBranch(
     course CHAR(6),
@@ -59,6 +68,7 @@ CREATE TABLE MandatoryBranch(
     FOREIGN KEY (branch, program) REFERENCES Branches (name, program)
 );
 
+
 CREATE TABLE RecommendedBranch(
     course CHAR(6),
     branch TEXT,
@@ -68,6 +78,7 @@ CREATE TABLE RecommendedBranch(
     FOREIGN KEY (branch, program) REFERENCES Branches (name, program)
 );
 
+
 CREATE TABLE Registered(
     student TEXT,
     course CHAR(6),
@@ -76,14 +87,17 @@ CREATE TABLE Registered(
     FOREIGN KEY (course) REFERENCES Courses (code)
 );
 
+
 CREATE TABLE Taken(
     student TEXT,
     course CHAR(6),
-    grade TEXT CHECK (NOT NULL AND grade IN ('U','3','4','5')),
+    grade TEXT,
+    CHECK grade (NOT NULL AND grade IN ('U','3','4','5')),
     PRIMARY KEY (student,course),
     FOREIGN KEY (student) REFERENCES Students (idnr),
     FOREIGN KEY (course) REFERENCES Courses (code)
 );
+
 
 CREATE TABLE WaitingList(
     student TEXT,
@@ -92,6 +106,5 @@ CREATE TABLE WaitingList(
     PRIMARY KEY(student,course),
     FOREIGN KEY (student) REFERENCES Students (idnr),
     FOREIGN KEY (course) REFERENCES LimitedCourses (code)
-
 );
 

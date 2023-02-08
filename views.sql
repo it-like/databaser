@@ -29,50 +29,73 @@ CREATE VIEW Registrations AS
 --SELECT student, course FROM UnreadMandatory ORDER BY student;
 CREATE VIEW UnreadMandatory AS
     SELECT student, course
-    FROM Taken, MandatoryProgram
-    WHERE code != course;
+    FROM PassedCourses, MandatoryProgram
+    WHERE MandatoryProgram.code != PassedCourses.course;
 
-CREATE VIEW CountMathCredits AS
-    SELECT student, SUM(PassedCourses.credits) AS sumCredits   
+create view CountMathCredits AS
+    SELECT student, SUM(PassedCourses.credits) AS sumCredits  
     FROM PassedCourses, Classified
     WHERE PassedCourses.course = Classified.code AND Classified.classification LIKE 'math'
     GROUP BY student;
 
 
 CREATE VIEW CountResearchCredits AS
-    SELECT student, SUM(PassedCourses.credits) AS sumCredits   
+    SELECT student, SUM(PassedCourses.credits) AS sumCreditsRe  
     FROM PassedCourses, Classified
     WHERE PassedCourses.course = Classified.code AND Classified.classification LIKE 'research'
     GROUP BY student;
 
-CREATE VIEW AllMandatory AS --All mandatory courses from branch and program
+CREATE VIEW AllMandatory AS -- All mandatory courses from branch and 
     SELECT code FROM MandatoryProgram
     UNION 
     SELECT course FROM MandatoryBranch; 
     
-CREATE VIEW Seminar AS --Passed couses of the classification "seminar"
-SELECT course FROM PassedCourses
-INTERSECT
-SELECT code FROM Classified
-WHERE classification = 'seminar';
--- sums all the students 
 
-/*
+CREATE VIEW CountSeminarCourses AS
+    SELECT student, COUNT(PassedCourses.course) AS sumSeminars
+    FROM PassedCourses, Classified
+    WHERE PassedCourses.course = Classified.code AND Classified.classification LIKE 'seminar'
+    GROUP BY student;
+
+
+
+CREATE VIEW RecommendedCredits AS
+    SELECT student, SUM(PassedCourses.credits) AS sumCreditsRec
+    FROM PassedCourses, RecommendedBranch
+    WHERE PassedCourses.course = RecommendedBranch.course
+    GROUP BY student;
+
+
+CREATE VIEW CountUnreadMandatory AS
+    SELECT student, COUNT(UnreadMandatory.course) AS amountOfMandatoryLeft
+    FROM UnreadMandatory
+    GROUP BY student;
+
+CREATE VIEW TotalCredits AS
+    SELECT student, SUM(PassedCourses.credits) AS sumCreditsTot
+    FROM PassedCourses
+    GROUP BY student;
+
+
 --SELECT student, totalCredits, mandatoryLeft, mathCredits, researchCredits, seminarCourses, qualified FROM PathToGraduation ORDER BY student;
 CREATE VIEW PathToGraduation AS 
-    SELECT 1,
-    SUM(credits) FROM PassedCourses,
-    COUNT(UnreadMandatory.course),
-    CountMathCredits.sumCredits, 
-    CountResearchCredits.sumCredits,
-    CountSeminarCourses.sumCourses,
-        mandatoryLeft == NULL
-        AND seminarCourses > 0 
-        AND totalCredits >=10 
-        AND mathCredits >= 20 
-        AND researchCredits >= 10 
-        AND seminarCourses
-    IS NULL THEN "False" ELSE "True"
-    END
-    FROM Taken, Courses
-    WHERE student = Taken.student AND taken.course = code AND student.idnr = taken.student AND Classified.course = code; */
+    SELECT Students.idnr AS student,
+    TotalCredits.sumCreditsTot AS totalCredits,
+    CountUnreadMandatory.amountOfMandatoryLeft AS mandatoryLeft, 
+    CountMathCredits.sumCredits AS mathCredits,
+    CountResearchCredits.sumCreditsRe AS researchCredits,
+    CountSeminarCourses.sumSeminars AS seminarCourses,
+    CASE 
+        WHEN     CountSeminarCourses.sumSeminars > 0 
+            AND  RecommendedCredits.sumCreditsRec >= 10
+            AND  TotalCredits.sumCreditsTot >=10 
+            AND  CountMathCredits.sumCredits >= 70 
+            AND  CountResearchCredits.sumCreditsRe >= 10 
+    THEN 'TRUE' 
+    ELSE 'FALSE'
+    END AS qualified
+    FROM Students, CountUnreadMandatory, CountMathCredits, CountResearchCredits, CountSeminarCourses, RecommendedCredits, TotalCredits
+    where Students.idnr = CountMathCredits.student AND NOT Students.idnr = CountUnreadMandatory.student AND Students.idnr = TotalCredits.student
+    GROUP BY (Students.idnr, TotalCredits.sumCreditsTot, CountUnreadMandatory.amountOfMandatoryLeft, CountMathCredits.sumCredits, CountResearchCredits.sumCreditsRe,
+    CountSeminarCourses.sumSeminars, qualified); 
+    
