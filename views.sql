@@ -80,22 +80,59 @@ CREATE VIEW TotalCredits AS
 --SELECT student, totalCredits, mandatoryLeft, mathCredits, researchCredits, seminarCourses, qualified FROM PathToGraduation ORDER BY student;
 CREATE VIEW PathToGraduation AS 
     SELECT Students.idnr AS student,
-    TotalCredits.sumCreditsTot AS totalCredits,
-    CountUnreadMandatory.amountOfMandatoryLeft AS mandatoryLeft, 
-    CountMathCredits.sumCredits AS mathCredits,
-    CountResearchCredits.sumCreditsRe AS researchCredits,
-    CountSeminarCourses.sumSeminars AS seminarCourses,
+    COALESCE (totalCredits,(0)) AS totalCredits,
+    COALESCE (mandatoryLeft,(0)) AS mandatoryLeft, 
+    COALESCE (mathCredits,(0)) AS mathCredits,
+    COALESCE (researchCredits, (0)) AS researchCredits,
+    COALESCE (seminarCourses,(0)) AS seminarCourses,
     CASE 
-        WHEN     CountSeminarCourses.sumSeminars > 0 
-            AND  RecommendedCredits.sumCreditsRec >= 10
-            AND  TotalCredits.sumCreditsTot >=10 
-            AND  CountMathCredits.sumCredits >= 70 
-            AND  CountResearchCredits.sumCreditsRe >= 10 
+        WHEN     seminarCourses > 0 
+            --AND  RecommendedCredits.sumCreditsRec >= 10
+            AND  totalCredits >=10 
+            AND  mathCredits >= 70 
+            AND  researchCredits >= 10 
     THEN 'TRUE' 
     ELSE 'FALSE'
     END AS qualified
-    FROM Students, CountUnreadMandatory, CountMathCredits, CountResearchCredits, CountSeminarCourses, RecommendedCredits, TotalCredits
-    where Students.idnr = CountMathCredits.student AND NOT Students.idnr = CountUnreadMandatory.student AND Students.idnr = TotalCredits.student
-    GROUP BY (Students.idnr, TotalCredits.sumCreditsTot, CountUnreadMandatory.amountOfMandatoryLeft, CountMathCredits.sumCredits, CountResearchCredits.sumCreditsRe,
-    CountSeminarCourses.sumSeminars, qualified); 
-    
+    FROM
+    Students
+    FULL OUTER JOIN (
+      SELECT PassedCourses.student, SUM(TotalCredits.sumCreditsTot) AS totalCredits
+      FROM PassedCourses, TotalCredits
+      GROUP BY PassedCourses.student
+
+    ) ResearchCredits
+    ON Students.idnr = ResearchCredits.student
+    FULL OUTER JOIN (
+      SELECT PassedCourses.student, COUNT(CountSeminarCourses.sumSeminars) AS seminarCourses
+      FROM PassedCourses, CountSeminarCourses
+      WHERE PassedCourses.course IN (SELECT course FROM Classified WHERE classification = 'Seminar')
+      GROUP BY PassedCourses.student
+    )
+    UnreadMandatory
+    ON Students.idnr = UnreadMandatory.student
+    lEFT JOIN (
+      SELECT PassedCourses.student, SUM(CountMathCredits.sumCredits) AS mathCredits
+      FROM PassedCourses, CountMathCredits
+      WHERE PassedCourses.course IN (SELECT course FROM Classified WHERE classification = 'Mathematics')
+      GROUP BY PassedCourses.student
+
+    ) TotalCredits
+    ON Students.idnr = TotalCredits.student
+    FULL OUTER JOIN (
+      SELECT UnreadMandatory.student, COUNT(CountUnreadMandatory.amountOfMandatoryLeft) AS mandatoryLeft
+      FROM UnreadMandatory, CountUnreadMandatory
+      GROUP BY UnreadMandatory.student
+
+    ) MathCredits
+    ON Students.idnr = MathCredits.student
+    FULL OUTER JOIN (
+      SELECT PassedCourses.student, SUM(CountResearchCredits.sumCreditsRe) AS researchCredits
+      FROM PassedCourses, CountResearchCredits
+      WHERE PassedCourses.course IN (SELECT course FROM Classified WHERE classification = 'Research')
+      GROUP BY PassedCourses.student
+
+    ) 
+
+    SeminarCourses
+    ON Students.idnr = SeminarCourses.student;      

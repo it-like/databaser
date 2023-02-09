@@ -22,14 +22,14 @@ CREATE TABLE Courses(
 
 
 CREATE TABLE LimitedCourses(
-    code CHAR(6) UNIQUE,
+    code CHAR(6) PRIMARY KEY,
     capacity CHAR NOT NULL,--vafan är TINYINT??
     FOREIGN KEY (code) REFERENCES Courses(code)
 );
     
 
 CREATE TABLE StudentBranches(
-    student TEXT NOT NULL,
+    student TEXT PRIMARY KEY NOT NULL,
     branch TEXT NOT NULL,
     program TEXT NOT NULL,
     FOREIGN KEY (student) REFERENCES Students (idnr),
@@ -52,9 +52,9 @@ CREATE TABLE Classified(
 
 
 CREATE TABLE MandatoryProgram(
-    code CHAR(6),
-    program TEXT PRIMARY KEY NOT NULL,
-    PRIMARY KEY(code, program)
+    code CHAR(6),       --ska egentligen heta course men men
+    program TEXT NOT NULL,
+    PRIMARY KEY(code, program),
     FOREIGN KEY (code) REFERENCES Courses (code)
 );
 
@@ -91,8 +91,8 @@ CREATE TABLE Registered(
 CREATE TABLE Taken(
     student TEXT,
     course CHAR(6),
-    grade TEXT,
-    CHECK grade (NOT NULL AND grade IN ('U','3','4','5')),
+    grade TEXT
+    CHECK  (NOT NULL AND grade IN ('U','3','4','5')),
     PRIMARY KEY (student,course),
     FOREIGN KEY (student) REFERENCES Students (idnr),
     FOREIGN KEY (course) REFERENCES Courses (code)
