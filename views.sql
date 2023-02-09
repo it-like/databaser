@@ -72,6 +72,7 @@ CREATE VIEW TotalCredits AS
 --SELECT student, totalCredits, mandatoryLeft, mathCredits, researchCredits, seminarCourses, qualified FROM PathToGraduation ORDER BY student;
 CREATE VIEW PathToGraduation AS 
 <<<<<<< HEAD
+<<<<<<< HEAD
     SELECT idnr,
     TotalCredits,
     UnreadMandatory.course ,
@@ -142,6 +143,15 @@ CREATE VIEW PathToGraduation AS
     COALESCE (researchCredits, (0)) AS researchCredits,
     COALESCE (seminarCourses,(0)) AS seminarCourses,
     CASE 
+=======
+    SELECT Students.idnr AS student,
+    COALESCE (totalCredits,(0)) AS totalCredits,
+    COALESCE (mandatoryLeft,(0)) AS mandatoryLeft, 
+    COALESCE (mathCredits,(0)) AS mathCredits,
+    COALESCE (researchCredits, (0)) AS researchCredits,
+    COALESCE (seminarCourses,(0)) AS seminarCourses,
+    CASE 
+>>>>>>> 32bbf04b6357320d55e76af35033c4d1a4cb341a
         WHEN     seminarCourses > 0 
             --AND  RecommendedCredits.sumCreditsRec >= 10
             AND  totalCredits >=10 
@@ -191,5 +201,9 @@ CREATE VIEW PathToGraduation AS
     ) 
 
     SeminarCourses
+<<<<<<< HEAD
+    ON Students.idnr = SeminarCourses.student;      
+>>>>>>> 32bbf04b6357320d55e76af35033c4d1a4cb341a
+=======
     ON Students.idnr = SeminarCourses.student;      
 >>>>>>> 32bbf04b6357320d55e76af35033c4d1a4cb341a
