@@ -22,15 +22,9 @@ CREATE TABLE Courses(
 
 
 CREATE TABLE LimitedCourses(
-<<<<<<< HEAD
-    code CHAR(6) PRIMARY KEY NOT NULL,
-    capacity CHAR NOT NULL,
-    FOREIGN KEY (code) REFERENCES Courses (code)
-=======
     code CHAR(6) PRIMARY KEY,
     capacity CHAR NOT NULL,--vafan är TINYINT??
     FOREIGN KEY (code) REFERENCES Courses(code)
->>>>>>> 32bbf04b6357320d55e76af35033c4d1a4cb341a
 );
     
 
@@ -58,13 +52,8 @@ CREATE TABLE Classified(
 
 
 CREATE TABLE MandatoryProgram(
-<<<<<<< HEAD
-    code CHAR(6),
-    program TEXT,
-=======
     code CHAR(6),       --ska egentligen heta course men men
     program TEXT NOT NULL,
->>>>>>> 32bbf04b6357320d55e76af35033c4d1a4cb341a
     PRIMARY KEY(code, program),
     FOREIGN KEY (code) REFERENCES Courses (code)
 );
@@ -102,12 +91,8 @@ CREATE TABLE Registered(
 CREATE TABLE Taken(
     student TEXT,
     course CHAR(6),
-<<<<<<< HEAD
-    grade TEXT CHECK (NOT NULL AND grade IN ('U','3','4','5')),
-=======
     grade TEXT
     CHECK  (NOT NULL AND grade IN ('U','3','4','5')),
->>>>>>> 32bbf04b6357320d55e76af35033c4d1a4cb341a
     PRIMARY KEY (student,course),
     FOREIGN KEY (student) REFERENCES Students (idnr),
     FOREIGN KEY (course) REFERENCES Courses (code)
