@@ -21,7 +21,7 @@ CREATE VIEW PassedCourses AS
 
 --SELECT student, course, status FROM Registrations ORDER BY student;
 CREATE VIEW Registrations AS
-    SELECT student, course, 'waiting' AS status FROM WaitingList
+    SELECT student, course, 'waiting' AS status FROM Taken
         UNION
     SELECT student, course, 'registered' AS status FROM Registered;
     
