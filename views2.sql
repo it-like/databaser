@@ -60,7 +60,7 @@ CREATE VIEW CountSeminarCourses AS
 
 
 CREATE VIEW RecommendedCredits AS
-    SELECT student, SUM(PassedCourses.credits) AS sumCreditsRec
+    SELECT student, SUM(PassedCourses.credits) AS credits
     FROM PassedCourses, RecommendedBranch
     WHERE PassedCourses.course = RecommendedBranch.course
     GROUP BY student;
@@ -72,7 +72,7 @@ CREATE VIEW RecommendedCredits AS
  --   GROUP BY student;
 
 CREATE VIEW TotalCredits AS
-    SELECT student, SUM(PassedCourses.credits) AS sumCreditsTot
+    SELECT student, sum(PassedCourses.credits) AS credits
     FROM PassedCourses
     GROUP BY student;
 
@@ -87,7 +87,7 @@ CREATE VIEW PathToGraduation AS
     COALESCE (seminarCourses,(0)) AS seminarCourses,
     CASE 
         WHEN     seminarCourses > 0 
-            --AND  RecommendedCredits.sumCreditsRec >= 10
+            AND  recommendedCredits >= 10
             AND  totalCredits >=10 
             AND  mathCredits >= 70 
             AND  researchCredits >= 10 
@@ -102,16 +102,24 @@ CREATE VIEW PathToGraduation AS
       FROM PassedCourses
       GROUP BY student
     ) 
-    totalCredits
-     ON idnr = TotalCredits.student
+    TotalCredits
+    ON idnr = TotalCredits.student
 
+    FULL OUTER JOIN (
+        SELECT student, sum(credits)  AS recommendedCredits
+        FROM RecommendedCredits
+        GROUP BY student
+    )
+    RecommendedCredits
+    ON idnr = RecommendedCredits.student
 
      FULL OUTER JOIN (
       SELECT student, COUNT(course) AS mandatoryLeft
       FROM UnreadMandatory
       GROUP BY student
-    ) unreadMandatory
-     ON idnr = UnreadMandatory.student
+    ) 
+    unreadMandatory
+    ON idnr = UnreadMandatory.student
 
     FULL OUTER JOIN (
       SELECT student, COUNT(credits) AS seminarCourses
@@ -120,7 +128,7 @@ CREATE VIEW PathToGraduation AS
       GROUP BY student
     )
     passedCourses
-     ON idnr = PassedCourses.student
+    ON idnr = PassedCourses.student
 
 
     FULL OUTER JOIN (
