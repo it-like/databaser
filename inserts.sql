@@ -41,6 +41,9 @@ INSERT INTO StudentBranches VALUES ('3333333333','B1','Prog2');
 INSERT INTO StudentBranches VALUES ('4444444444','B1','Prog1');
 INSERT INTO StudentBranches VALUES ('5555555555','B1','Prog2');
 
+--INSERT INTO StudentBranches VALUES ('5555555555','B2','Prog2'); -- Does not work as branch is outside of program.
+
+
 
 INSERT INTO MandatoryProgram VALUES ('CCC111','Prog1');
 

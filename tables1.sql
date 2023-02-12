@@ -1,33 +1,14 @@
- CREATE TABLE Departments(
-    departmentName TEXT NOT NULL, --Dep1
-    departmentAbbrivation TEXT NOT NULL,    --D1
-    PRIMARY KEY (departmentName),       
-    UNIQUE(departmentName, departmentAbbrivation) --Exists only one departAbbr per department
-);
-
-
-CREATE TABLE Programs(
-    programName TEXT NOT NULL, --Prog1
-    programAbbrivation  TEXT NOT NULL,   --p1
-    department  TEXT NOT NULL,   --Dep1
-    CONSTRAINT validDepartment FOREIGN KEY (department) REFERENCES Departments (departmentName),
-    PRIMARY KEY (programName),
-    UNIQUE (programName, programAbbrivation) --Exists only one programAbbr per prog
-);
-
-
 CREATE TABLE Students(
     idnr    TEXT PRIMARY KEY NOT NULL,
     name    TEXT NOT NULL,
     login   TEXT NOT NULL,
     program TEXT NOT NULL,
-    CONSTRAINT validProgram FOREIGN KEY (program) REFERENCES Programs (programName), 
-    UNIQUE(login)
+    UNIQUE(idnr, program)
 );
 
-
+    
 CREATE TABLE Branches(
-    name    TEXT NOT NULL CHECK(name in ('B1', 'B2')),
+    name    TEXT NOT NULL,
     program TEXT NOT NULL,
     PRIMARY KEY (name, program)
 );
@@ -37,8 +18,7 @@ CREATE TABLE Courses(
     code CHAR(6) PRIMARY KEY NOT NULL,
     courseName TEXT NOT NULL,
     credits FLOAT(4) NOT NULL,
-    department TEXT NOT NULL,
-    CONSTRAINT validDepartment FOREIGN KEY (department) REFERENCES Departments (departmentName), --See department
+    department  TEXT NOT NULL,
     UNIQUE (courseName, department)
 );
 
@@ -55,17 +35,13 @@ CREATE TABLE StudentBranches(
     branch TEXT NOT NULL,
     program TEXT NOT NULL,
     FOREIGN KEY (student) REFERENCES Students (idnr),
-    FOREIGN KEY (branch, program) REFERENCES Branches (name, program),
-    CONSTRAINT validBranch FOREIGN KEY (branch, program) REFERENCES Branches (name, program) --See branch is valid
+    FOREIGN KEY (branch, program) REFERENCES Branches (name, program)
 );
-
 
 
 CREATE TABLE Classifications(
-    name TEXT PRIMARY KEY NOT NULL
-    CHECK (name IN ('math', 'research', 'seminar'))
+      name TEXT PRIMARY KEY NOT NULL
 );
-
 
 
 CREATE TABLE Classified(
@@ -75,7 +51,6 @@ CREATE TABLE Classified(
     FOREIGN KEY (classification) REFERENCES Classifications (name),
     PRIMARY KEY(code, classification)
 );
-
 
 
 CREATE TABLE MandatoryProgram(
@@ -105,7 +80,7 @@ CREATE TABLE RecommendedBranch(
     FOREIGN KEY (branch, program) REFERENCES Branches (name, program)
 );
 
-   
+
 CREATE TABLE Registered(
     student TEXT,
     course CHAR(6),
@@ -122,7 +97,8 @@ CREATE TABLE Taken(
     PRIMARY KEY (student,course),
     FOREIGN KEY (student) REFERENCES Students (idnr),
     FOREIGN KEY (course) REFERENCES Courses (code)
-    );
+);
+
 
 CREATE TABLE WaitingList(
     student TEXT,
