@@ -63,6 +63,15 @@ CREATE VIEW RecomendedCredits AS
     WHERE PassedCourses.course = RecommendedBranch.course
     GROUP BY student;
 
+<<<<<<< HEAD
+=======
+
+--CREATE VIEW CountUnreadMandatory AS
+    --SELECT student, COUNT(UnreadMandatory.course) AS amountOfMandatoryLeft
+   -- FROM UnreadMandatory
+ --   GROUP BY student;
+
+>>>>>>> 470d5ad7a2a963b6c4bc3dd9ac81c8f44497f967
 CREATE VIEW TotalCredits AS
     SELECT student, SUM(PassedCourses.credits) AS sumCredits
     FROM PassedCourses
@@ -130,6 +139,7 @@ CREATE VIEW PathToGraduation AS
       GROUP BY student
     ) 
     countResearchCredits
+<<<<<<< HEAD
     ON idnr = CountResearchCredits.student;
 /*
 --SELECT student, totalCredits, mandatoryLeft, mathCredits, researchCredits, seminarCourses, qualified FROM PathToGraduation ORDER BY student;
@@ -199,3 +209,6 @@ CREATE VIEW PathToGraduation AS
         END AS qualified
         SELECT idnr FROM Students FULL OUTER JOIN  COALESCE(totalCredits,0) FULL OUTER JOIN COALESCE(UnreadMandatory, 0) FULL OUTER JOIN  COALESCE(CountMathCredits, 0) FULL OUTER JOIN COALESCE(CountResearchCredits, 0) FULL OUTER JOIN COALESCE(CountSeminarCourses,0), COALESCE(qualified,0);
 */
+=======
+    ON idnr = CountResearchCredits.student;      
+>>>>>>> 470d5ad7a2a963b6c4bc3dd9ac81c8f44497f967
