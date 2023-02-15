@@ -16,11 +16,16 @@ CREATE TABLE Branches(
 
 CREATE TABLE Courses(
     code CHAR(6) PRIMARY KEY NOT NULL,
-    courseName TEXT NOT NULL,
+    name TEXT NOT NULL,
     credits FLOAT(4) NOT NULL,
     department  TEXT NOT NULL,
+<<<<<<< Updated upstream
     UNIQUE (courseName, department)
+=======
+    UNIQUE (name, department)
+>>>>>>> Stashed changes
 );
+
 
 
 CREATE TABLE LimitedCourses(
@@ -45,19 +50,19 @@ CREATE TABLE Classifications(
 
 
 CREATE TABLE Classified(
-    code CHAR(6),
+    course CHAR(6),
     classification TEXT,
-    FOREIGN KEY (code) REFERENCES Courses (code),
+    FOREIGN KEY (course) REFERENCES Courses (code),
     FOREIGN KEY (classification) REFERENCES Classifications (name),
-    PRIMARY KEY(code, classification)
+    PRIMARY KEY(course, classification)
 );
 
 
 CREATE TABLE MandatoryProgram(
-    code CHAR(6),       --ska egentligen heta course men men
+    course CHAR(6),      
     program TEXT NOT NULL,
-    PRIMARY KEY(code, program),
-    FOREIGN KEY (code) REFERENCES Courses (code)
+    PRIMARY KEY(course, program),
+    FOREIGN KEY (course) REFERENCES Courses (code)
 );
 
 
@@ -69,6 +74,7 @@ CREATE TABLE MandatoryBranch(
     FOREIGN KEY (course) REFERENCES Courses (code),
     FOREIGN KEY (branch, program) REFERENCES Branches (name, program)
 );
+
 
 
 CREATE TABLE RecommendedBranch(
@@ -93,7 +99,7 @@ CREATE TABLE Registered(
 CREATE TABLE Taken(
     student TEXT,
     course CHAR(6),
-    grade TEXT CHECK (NOT NULL AND grade IN ('U','3','4','5')),
+    grade TEXT NOT NULL CHECK (grade IN ('U','3','4','5')),
     PRIMARY KEY (student,course),
     FOREIGN KEY (student) REFERENCES Students (idnr),
     FOREIGN KEY (course) REFERENCES Courses (code)
@@ -108,4 +114,5 @@ CREATE TABLE WaitingList(
     FOREIGN KEY (student) REFERENCES Students (idnr),
     FOREIGN KEY (course) REFERENCES LimitedCourses (code)
 );
+
 
