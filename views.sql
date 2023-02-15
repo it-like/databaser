@@ -25,10 +25,6 @@ CREATE VIEW Registrations AS
         UNION
     SELECT student, course, 'registered' AS status FROM Registered;
     
-
---SELECT student, course FROM UnreadMandatory ORDER BY student;
-
-
 CREATE VIEW MandatoryCourses AS
     SELECT MandatoryProgram.course, MandatoryProgram.program
     FROM MandatoryProgram
@@ -36,134 +32,105 @@ CREATE VIEW MandatoryCourses AS
     SELECT MandatoryBranch.course, MandatoryBranch.program
     FROM MandatoryBranch;
 
+--SELECT student, course FROM UnreadMandatory ORDER BY student;
 
-CREATE VIEW UnreadMandatoryCourses AS 
-    --map mandatory course from program and branch to the 
-    --specific student then see if it has passed that mandatory course:
+CREATE VIEW UnreadMandatory AS
+    SELECT BasicInformation.idnr as student, MandatoryProgram.course as course
+    FROM BasicInformation, MandatoryProgram
+    WHERE MandatoryProgram.program = BasicInformation.program 
+    AND BasicInformation.idnr NOT IN (SELECT PassedCourses.student FROM PassedCourses where PassedCourses.course = MandatoryProgram.course)
+    UNION
+    SELECT BasicInformation.idnr as student, MandatoryBranch.course as course
+    FROM BasicInformation, MandatoryBranch 
+    WHERE       MandatoryBranch.branch = BasicInformation.branch AND MandatoryBranch.program = BasicInformation.program
+            AND BasicInformation.idnr NOT IN (SELECT PassedCourses.student FROM PassedCourses where PassedCourses.course = MandatoryBranch.course);
 
-    -- for student.program.mandatory.course not in passed 
-    -- add a row
-    -- for student.branch.mandatory.course not in passed
-    -- add a row
-    -- if no rows -> 0
-    -- else: -> amount of rows
-
-
-
-create view CountMathCredits AS
-    SELECT student, SUM(PassedCourses.credits) AS sumCredits  
-    FROM PassedCourses, Classified
-    WHERE PassedCourses.course = Classified.course AND Classified.classification LIKE 'math'
-    GROUP BY student;
-
-
-CREATE VIEW CountResearchCredits AS
-    SELECT student, SUM(PassedCourses.credits) AS sumCreditsRe  
-    FROM PassedCourses, Classified
-    WHERE PassedCourses.course = Classified.course AND Classified.classification LIKE 'research'
-    GROUP BY student;
-
-CREATE VIEW AllMandatory AS -- All mandatory courses from branch and 
-    SELECT course FROM MandatoryProgram
-    UNION 
-    SELECT course FROM MandatoryBranch; 
+--CREATE VIEW MandatoryLeft AS 
     
 
-CREATE VIEW CountSeminarCourses AS
-    SELECT student, COUNT(PassedCourses.course) AS sumSeminars
-    FROM PassedCourses, Classified
-    WHERE PassedCourses.course = Classified.course AND Classified.classification LIKE 'seminar'
-    GROUP BY student;
 
-
-
-CREATE VIEW RecommendedCredits AS
-    SELECT student, SUM(PassedCourses.credits) AS sumCreditsRec
-    FROM PassedCourses, RecommendedBranch
-    WHERE PassedCourses.course = RecommendedBranch.course
-    GROUP BY student;
-
-
-
-
-CREATE VIEW TotalCredits AS
-    SELECT student, SUM(PassedCourses.credits) AS sumCreditsTot
-    FROM PassedCourses
-    GROUP BY student;
 
 --SELECT student, totalCredits, mandatoryLeft, mathCredits, researchCredits, seminarCourses, qualified FROM PathToGraduation ORDER BY student;
 CREATE VIEW PathToGraduation AS 
-    SELECT Students.idnr AS student,
-    COALESCE (totalCredits,(0)) AS totalCredits,
-    COALESCE (mandatoryLeft,(0)) AS mandatoryLeft, 
-    COALESCE (mathCredits,(0)) AS mathCredits,
-    COALESCE (researchCredits, (0)) AS researchCredits,
-    COALESCE (seminarCourses,(0)) AS seminarCourses,
+WITH
+MathCredits AS(
+    SELECT student, SUM(PassedCourses.credits) AS sumCreditsMath  
+    FROM PassedCourses, Classified
+    WHERE PassedCourses.course = Classified.course AND Classified.classification LIKE 'math'
+    GROUP BY student),
+
+
+ResearchCredits AS(
+    SELECT student, SUM(PassedCourses.credits) AS sumCreditsRe  
+    FROM PassedCourses, Classified
+    WHERE PassedCourses.course = Classified.course AND Classified.classification LIKE 'research'
+    GROUP BY student),
+
+    
+
+ SeminarCourses AS(
+    SELECT student, COUNT(PassedCourses.course) AS sumSeminars
+    FROM PassedCourses, Classified
+    WHERE PassedCourses.course = Classified.course AND Classified.classification LIKE 'seminar'
+    GROUP BY student),
+
+
+RecommendedCredits AS(
+    SELECT student, SUM(PassedCourses.credits) AS sumCreditsRec
+    FROM PassedCourses, RecommendedBranch
+    WHERE PassedCourses.course = RecommendedBranch.course AND 
+    GROUP BY student),
+
+
+MandatoryLe AS(
+    SELECT student, COUNT(course) AS mandatoryLeft
+      FROM UnreadMandatory
+      GROUP BY student),
+
+TotalCredits AS(
+    SELECT student, SUM(credits) AS sumCreditsTot
+    FROM PassedCourses
+    GROUP BY student)
+
+SELECT Students.idnr AS student,
+    COALESCE (sumCreditsTot, 0) AS totalCredits,
+    
+    COALESCE (mandatoryLeft,0) AS mandatoryLeft, 
+    COALESCE (sumCreditsMath, 0) AS mathCredits,
+    COALESCE (sumCreditsRe, 0) AS researchCredits,
+    COALESCE (sumSeminars, 0) AS seminarCourses,
     CASE 
-        WHEN     seminarCourses > 0 
-            --AND  RecommendedCredits.sumCreditsRec >= 10
-            AND  totalCredits >=10 
-            AND  mathCredits >= 70 
-            AND  researchCredits >= 10 
+        WHEN     COALESCE(sumSeminars,0) > 0 
+            AND  COALESCE(mandatoryLeft, 0) = 0   
+            AND  COALESCE(sumCreditsRec,0) >= 10
+            AND  COALESCE(sumCreditsTot,0) >=10 
+            AND  COALESCE(sumCreditsMath,0) >= 20 
+            AND  COALESCE(sumCreditsRe,0) >= 10 
     THEN true 
     ELSE false
     END AS qualified
     FROM
     Students
-
-    FULL OUTER JOIN (
-        SELECT student, sum(sumCreditsRec)  AS recommendedCredits
-        FROM RecommendedCredits
-        GROUP BY student
-    )
-
-    RecommendedCredits
-    ON idnr = RecommendedCredits.student
      
-    FULL OUTER JOIN (
-      SELECT student, SUM(PassedCourses.credits) AS totalCredits
-      FROM PassedCourses
-      GROUP BY student
-    ) 
-    totalCredits
-     ON idnr = TotalCredits.student
+    FULL OUTER JOIN 
+    totalCredits ON idnr = TotalCredits.student
 
-<<<<<<< Updated upstream
+    FULL OUTER JOIN 
+    seminarCourses
+     ON idnr = seminarCourses.student
 
-=======
->>>>>>> Stashed changes
-     FULL OUTER JOIN (
-      SELECT student, COUNT(course) AS mandatoryLeft
-      FROM UnreadMandatoryCourses
-      GROUP BY student
-    ) unreadMandatory
-     ON idnr = UnreadMandatory.student
+    FULL OUTER JOIN 
+    RecommendedCredits
+     ON idnr = RecommendedCredits.student
 
-    FULL OUTER JOIN (
-      SELECT student, COUNT(credits) AS seminarCourses
-      FROM PassedCourses, Classified
-      WHERE PassedCourses.course = Classified.course AND classification LIKE 'seminar'
-      GROUP BY student
-    )
-    passedCourses
-     ON idnr = PassedCourses.student
-
-
-    FULL OUTER JOIN (
-      SELECT student, SUM(credits) AS mathCredits
-      FROM PassedCourses, Classified
-      WHERE PassedCourses.course = Classified.course AND classification LIKE 'math'
-      GROUP BY student
-
-    ) 
+    FULL OUTER JOIN 
     mathCredits
     ON idnr = MathCredits.student
 
-    FULL OUTER JOIN (
-      SELECT student, SUM(credits) AS researchCredits
-      FROM PassedCourses, Classified
-      where PassedCourses.course = Classified.course AND classification LIKE 'research'
-      GROUP BY student
-    ) 
-    countResearchCredits
-    ON idnr = CountResearchCredits.student;      
+    FULL OUTER JOIN 
+      ResearchCredits
+    ON idnr = ResearchCredits.student   
+
+    FULL OUTER JOIN 
+        MandatoryLe
+    ON idnr = mandatoryLe.student;

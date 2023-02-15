@@ -19,11 +19,7 @@ CREATE TABLE Courses(
     name TEXT NOT NULL,
     credits FLOAT(4) NOT NULL,
     department  TEXT NOT NULL,
-<<<<<<< Updated upstream
-    UNIQUE (courseName, department)
-=======
     UNIQUE (name, department)
->>>>>>> Stashed changes
 );
 
 

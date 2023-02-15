@@ -16,7 +16,7 @@ SET client_min_messages TO NOTICE; -- More talk
 -- \ir is for include relative, it will run files in the same directory as this file
 -- Note that these are not SQL statements but rather Postgres commands (no terminating ;). 
 \ir tables.sql
-\ir inserts1.sql
+\ir inserts.sql
 \ir views.sql
 
 
@@ -30,11 +30,6 @@ SET client_min_messages TO NOTICE; -- More talk
 --SELECT student, course, credits FROM PassedCourses ORDER BY student;
 
 --SELECT student, course, status FROM Registrations ORDER BY student;
-<<<<<<< Updated upstream
-SELECT * FROM StudentBranches;
-=======
-
->>>>>>> Stashed changes
---SELECT student, totalCredits, mandatoryLeft, mathCredits, researchCredits, seminarCourses, qualified FROM PathToGraduation ORDER BY student;
-SELECT * FROM UnreadMandatoryCourses;
+SELECT * FROM UnreadMandatory;
+--SELECT * FROM MandatoryLeft;
 -- Life-hack: When working on a new view you can write it as a query here (without creating a view) and when it works just add CREATE VIEW and put it in views.sql
