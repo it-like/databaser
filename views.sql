@@ -75,14 +75,17 @@ ResearchCredits AS(
     GROUP BY student),
 
 
-RecommendedCredits AS(
-    SELECT student, SUM(PassedCourses.credits) AS sumCreditsRec
-    FROM PassedCourses, RecommendedBranch
-    WHERE PassedCourses.course = RecommendedBranch.course AND 
+sumBranchRecCred AS(
+    SELECT student, SUM(PassedCourses.credits) AS sumRecBranch
+    FROM PassedCourses, RecommendedBranch, BasicInformation
+    WHERE       PassedCourses.course = RecommendedBranch.course 
+            AND PassedCourses.student = BasicInformation.idnr
+            AND BasicInformation.program = RecommendedBranch.program
+            AND BasicInformation.branch = RecommendedBranch.branch
     GROUP BY student),
 
 
-MandatoryLe AS(
+unreadMandatoryleft AS(
     SELECT student, COUNT(course) AS mandatoryLeft
       FROM UnreadMandatory
       GROUP BY student),
@@ -94,6 +97,8 @@ TotalCredits AS(
 
 SELECT Students.idnr AS student,
     COALESCE (sumCreditsTot, 0) AS totalCredits,
+
+   --COALESCE (sumRecBranch, 0) AS sumBranchRecCred,
     
     COALESCE (mandatoryLeft,0) AS mandatoryLeft, 
     COALESCE (sumCreditsMath, 0) AS mathCredits,
@@ -102,10 +107,9 @@ SELECT Students.idnr AS student,
     CASE 
         WHEN     COALESCE(sumSeminars,0) > 0 
             AND  COALESCE(mandatoryLeft, 0) = 0   
-            AND  COALESCE(sumCreditsRec,0) >= 10
+            AND  COALESCE(sumRecBranch, 0) >= 10
             AND  COALESCE(sumCreditsTot,0) >=10 
             AND  COALESCE(sumCreditsMath,0) >= 20 
-            AND  COALESCE(sumCreditsRe,0) >= 10 
     THEN true 
     ELSE false
     END AS qualified
@@ -120,8 +124,8 @@ SELECT Students.idnr AS student,
      ON idnr = seminarCourses.student
 
     FULL OUTER JOIN 
-    RecommendedCredits
-     ON idnr = RecommendedCredits.student
+    sumBranchRecCred
+     ON idnr = sumBranchRecCred.student
 
     FULL OUTER JOIN 
     mathCredits
@@ -132,5 +136,5 @@ SELECT Students.idnr AS student,
     ON idnr = ResearchCredits.student   
 
     FULL OUTER JOIN 
-        MandatoryLe
-    ON idnr = mandatoryLe.student;
+        unreadMandatoryleft
+    ON idnr = unreadMandatoryleft.student;

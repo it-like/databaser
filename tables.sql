@@ -1,5 +1,5 @@
 CREATE TABLE Students(
-    idnr    TEXT PRIMARY KEY NOT NULL,
+    idnr    TEXT PRIMARY KEY NOT NULL CONSTRAINT name_check CHECK (char_length(idnr) = 10),
     name    TEXT NOT NULL,
     login   TEXT NOT NULL,
     program TEXT NOT NULL,
@@ -17,7 +17,7 @@ CREATE TABLE Branches(
 CREATE TABLE Courses(
     code CHAR(6) PRIMARY KEY NOT NULL,
     name TEXT NOT NULL,
-    credits FLOAT(4) NOT NULL,
+    credits FLOAT(4) NOT NULL CONSTRAINT not_negative CHECK ( credits > 0),
     department  TEXT NOT NULL,
     UNIQUE (name, department)
 );
@@ -26,7 +26,7 @@ CREATE TABLE Courses(
 
 CREATE TABLE LimitedCourses(
     code CHAR(6) PRIMARY KEY,
-    capacity CHAR NOT NULL,--vafan är TINYINT??
+    capacity INT NOT NULL CONSTRAINT not_negative CHECK( capacity > 0),
     FOREIGN KEY (code) REFERENCES Courses(code)
 );
     
