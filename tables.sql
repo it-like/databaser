@@ -134,7 +134,29 @@ CREATE TABLE WaitingList(
     position INT NOT NULL,
     PRIMARY KEY(student,course),
     FOREIGN KEY (student) REFERENCES Students (idnr),
-    FOREIGN KEY (course) REFERENCES LimitedCourses (code)
+    FOREIGN KEY (course) REFERENCES LimitedCourses (code),
+    UNIQUE(course, position)
 );
+
+
+
+CREATE OR REPLACE FUNCTION checkCapacity()
+RETURNS TRIGGER AS $$
+    DECLARE valueToGive INT; -- Contains the current length of the waitinglist queue.
+    BEGIN
+        valueToGive := (SELECT COUNT(*) FROM Registered WHERE course=NEW.course);
+        IF  (valueToGive) > (SELECT capacity FROM LimitedCourses WHERE code=NEW.course) 
+            THEN
+                INSERT INTO WaitingList VALUES(NEW.student,NEW.course, (valueToGive + 1));
+        END IF;
+        RETURN NEW;
+    END $$
+LANGUAGE PLPGSQL;
+
+DROP TRIGGER IF EXISTS checkCapacity ON Registered;
+
+CREATE TRIGGER checkCapacity
+BEFORE INSERT ON Registered
+FOR EACH ROW EXECUTE PROCEDURE checkCapacity();
 
 

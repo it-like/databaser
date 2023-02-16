@@ -62,22 +62,6 @@ CREATE VIEW CourseQueuePositions AS
 --SELECT student, totalCredits, mandatoryLeft, mathCredits, researchCredits, seminarCourses, qualified FROM PathToGraduation ORDER BY student;
 
 
-CREATE OR REPLACE FUNCTION checkCapacity()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF (SELECT COUNT(*) FROM WaitingList WHERE course=NEW.course) 
-        > (SELECT capacity FROM LimitedCourses WHERE code=NEW.course) 
-        THEN
-            RAISE EXCEPTION 'Course % is over capacity!', NEW.course;
-    END IF;
-    RETURN NEW;
-END $$
-LANGUAGE PLPGSQL;
-
-CREATE TRIGGER checkCapacity
-BEFORE INSERT ON WaitingList
-FOR EACH ROW EXECUTE PROCEDURE checkCapacity();
-
 /*
 
 CREATE FUNCTION testONe() RETURNS TRIGGER AS   
