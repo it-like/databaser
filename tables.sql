@@ -64,7 +64,6 @@ CREATE TABLE StudentBranches(
 CREATE TABLE Classifications(
       name TEXT PRIMARY KEY NOT NULL,
         CHECK (name IN ('math', 'research', 'seminar'))
-
 );
 
 

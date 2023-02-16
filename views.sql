@@ -1,15 +1,17 @@
 --SELECT idnr, name, login, program, branch FROM BasicInformation ORDER BY idnr;
 CREATE VIEW BasicInformation AS
-    SELECT idnr, Students.name, login, Students.program, COALESCE(branch,(Null)) as branch
-    FROM Students
+    SELECT  idnr, Students.name, login, Students.program, COALESCE(branch,(Null)) as branch
+    FROM    Students
     LEFT OUTER JOIN StudentBranches ON Students.idnr = StudentBranches.student;
 
 
 --SELECT student, course, grade, credits FROM FinishedCourses ORDER BY student;
 CREATE VIEW FinishedCourses AS
-    SELECT student, course, grade, Courses.credits as credits   
-    FROM Taken, Students, Courses
-    Where student = Students.idnr AND course = Courses.code AND credits = Courses.credits;
+    SELECT  student, course, grade, Courses.credits as credits   
+    FROM    Taken, Students, Courses
+    Where   student = Students.idnr 
+            AND course = Courses.code  
+            AND credits = Courses.credits;
 
 
 --SELECT student, course, credits FROM PassedCourses ORDER BY student;
@@ -37,20 +39,56 @@ CREATE VIEW MandatoryCourses AS
 CREATE VIEW UnreadMandatory AS
     SELECT BasicInformation.idnr as student, MandatoryProgram.code as course
     FROM BasicInformation, MandatoryProgram
-    WHERE MandatoryProgram.program = BasicInformation.program 
-    AND BasicInformation.idnr NOT IN (SELECT PassedCourses.student FROM PassedCourses where PassedCourses.course = MandatoryProgram.code)
+    WHERE       MandatoryProgram.program = BasicInformation.program 
+            AND BasicInformation.idnr 
+            NOT IN (SELECT PassedCourses.student FROM PassedCourses where PassedCourses.course = MandatoryProgram.code)
+    
     UNION
+
     SELECT BasicInformation.idnr as student, MandatoryBranch.course as course
     FROM BasicInformation, MandatoryBranch 
-    WHERE       MandatoryBranch.branch = BasicInformation.branch AND MandatoryBranch.program = BasicInformation.program
-            AND BasicInformation.idnr NOT IN (SELECT PassedCourses.student FROM PassedCourses where PassedCourses.course = MandatoryBranch.course);
+    WHERE       MandatoryBranch.branch = BasicInformation.branch 
+            AND MandatoryBranch.program = BasicInformation.program
+            AND BasicInformation.idnr 
+            NOT IN (SELECT PassedCourses.student FROM PassedCourses where PassedCourses.course = MandatoryBranch.course);
 
---CREATE VIEW MandatoryLeft AS 
+
+
+
+CREATE VIEW CourseQueuePositions AS 
+    SELECT course, student, position as place
+    FROM WaitingList;    
+
+--SELECT student, totalCredits, mandatoryLeft, mathCredits, researchCredits, seminarCourses, qualified FROM PathToGraduation ORDER BY student;
+
+
+
+CREATE FUNCTION testONe() RETURNS TRIGGER AS   
+$$
+    DECLARE countPositions INT;
+    BEGIN
+            SELECT COUNT(*) INTO countPositions
+            FROM CourseQueuePositions
+            WHERE course = NEW.course;
+        IF (NEW.position = countPositions) THEN
+            RETURN NEW;
+        ELSE 
+            RAISE EXCEPTION 'bro whatare  you doing?';
+        END IF;
+    END  
+$$ LANGUAGE plpgsql;
     
 
 
+CREATE TRIGGER waiting_inserted
+    AFTER INSERT ON WaitingList
+    FOR EACH ROW 
+    EXECUTE PROCEDURE testONe();
 
---SELECT student, totalCredits, mandatoryLeft, mathCredits, researchCredits, seminarCourses, qualified FROM PathToGraduation ORDER BY student;
+
+
+
+
 CREATE VIEW PathToGraduation AS 
 WITH
 MathCredits AS(
@@ -66,7 +104,6 @@ ResearchCredits AS(
     WHERE PassedCourses.course = Classified.code AND Classified.classification LIKE 'research'
     GROUP BY student),
 
-    
 
  SeminarCourses AS(
     SELECT student, COUNT(PassedCourses.course) AS sumSeminars
