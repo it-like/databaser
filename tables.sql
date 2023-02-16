@@ -1,3 +1,6 @@
+--CREATE TYPE grade_enum AS ENUM('3','4','5');
+--SELECT * FROM grade_enum;
+ --TESTING
  CREATE TABLE Departments(
     departmentName TEXT NOT NULL, --Dep1
     departmentAbbrivation TEXT NOT NULL,    --D1
@@ -136,6 +139,10 @@ CREATE TABLE WaitingList(
     FOREIGN KEY (student) REFERENCES Students (idnr),
     FOREIGN KEY (course) REFERENCES LimitedCourses (code),
     UNIQUE(course, position)
+
+
+
+-- All functions
 );
 CREATE OR REPLACE FUNCTION checkIfPassed()
 RETURNS TRIGGER AS $$
@@ -143,8 +150,8 @@ RETURNS TRIGGER AS $$
         IF (SELECT NEW.grade) IN ('3','4','5') AND 
             EXISTS (SELECT course, student FROM Registered where New.course = Registered.course AND NEW.student =Registered.student)
         THEN 
-            RAISE NOTICE 'The student % has already read and passed the course % with grade %', NEW.student, NEW.course , NEW.grade;
-                                    DELETE FROM Registered WHERE course = NEW.course AND student = NEW.student;
+            RAISE NOTICE 'The student % has already read and passed the course % with grade %', NEW.student, NEW.course , NEW.grade; -- notice as goes by
+            DELETE FROM Registered WHERE course = NEW.course AND student = NEW.student; -- removes all faulty inputs
 
         END IF;
         RETURN NEW;
@@ -181,7 +188,3 @@ CREATE TRIGGER checkInTakenRemoveRegistered --if student has already taken a cla
     BEFORE INSERT ON Taken
     FOR EACH ROW EXECUTE PROCEDURE 
     checkIfPassed();
-/*   SELECT grade
-                FROM  Taken, Courses
-                WHERE course = code AND course = NEW.course) IN ('3','4','5')
-        THEN RAISE EXCEPTION 'N00B';*/
