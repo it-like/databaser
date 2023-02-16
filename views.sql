@@ -62,6 +62,23 @@ CREATE VIEW CourseQueuePositions AS
 --SELECT student, totalCredits, mandatoryLeft, mathCredits, researchCredits, seminarCourses, qualified FROM PathToGraduation ORDER BY student;
 
 
+CREATE OR REPLACE FUNCTION checkCapacity()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF (SELECT COUNT(*) FROM WaitingList WHERE course=NEW.course) 
+        > (SELECT capacity FROM LimitedCourses WHERE code=NEW.course) 
+        THEN
+            RAISE EXCEPTION 'Course % is over capacity!', NEW.course;
+    END IF;
+    RETURN NEW;
+END $$
+LANGUAGE PLPGSQL;
+
+CREATE TRIGGER checkCapacity
+BEFORE INSERT ON WaitingList
+FOR EACH ROW EXECUTE PROCEDURE checkCapacity();
+
+/*
 
 CREATE FUNCTION testONe() RETURNS TRIGGER AS   
 $$
@@ -73,24 +90,35 @@ $$
         IF (NEW.position = countPositions) THEN
             RETURN NEW;
         ELSE 
-            RAISE EXCEPTION 'bro whatare  you doing?';
+            RAISE EXCEPTION 'bro what are you doing?';
         END IF;
     END  
 $$ LANGUAGE plpgsql;
     
 
+CREATE FUNCTION compact() RETURNS TRIGGER AS 
+$$
+    BEGIN  
+        UPDATE WaitingList set position = position - 1
+        WHERE course = old.course and position > OLD.position;
+        RETURN OLD;
+    END
+$$LANGUAGE plpgsql;
 
-CREATE TRIGGER waiting_inserted
+
+CREATE TRIGGER duplicate_queue
     AFTER INSERT ON WaitingList
     FOR EACH ROW 
-    EXECUTE PROCEDURE testONe();
-
+    EXECUTE FUNCTION testONe();
+*/
 
 
 
 
 CREATE VIEW PathToGraduation AS 
 WITH
+
+
 MathCredits AS(
     SELECT student, SUM(PassedCourses.credits) AS sumCreditsMath  
     FROM PassedCourses, Classified
@@ -127,10 +155,12 @@ unreadMandatoryleft AS(
       FROM UnreadMandatory
       GROUP BY student),
 
+
 TotalCredits AS(
     SELECT student, SUM(credits) AS sumCreditsTot
     FROM PassedCourses
     GROUP BY student)
+
 
 SELECT Students.idnr AS student,
     COALESCE (sumCreditsTot, 0) AS totalCredits,
