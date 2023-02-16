@@ -1,14 +1,32 @@
+ CREATE TABLE Departments(
+    departmentName TEXT NOT NULL, --Dep1
+    departmentAbbrivation TEXT NOT NULL,    --D1
+    PRIMARY KEY (departmentName ),       
+    UNIQUE(departmentName, departmentAbbrivation) --Exists only one departAbbr per department
+);
+
+
+CREATE TABLE Programs(
+    programName TEXT NOT NULL, --Prog1
+    programAbbrivation TEXT NOT NULL,   --p1
+    department TEXT NOT NULL,   --Dep1
+    CONSTRAINT validDepartment FOREIGN KEY (department) REFERENCES Departments (departmentName),
+    PRIMARY KEY (programName),
+    UNIQUE (programName, programAbbrivation) --Exists only one programAbbr per prog
+);
+
 CREATE TABLE Students(
     idnr    TEXT PRIMARY KEY NOT NULL CONSTRAINT name_ten_char_long CHECK (char_length(idnr) = 10),
     name    TEXT NOT NULL,
     login   TEXT NOT NULL,
     program TEXT NOT NULL,
-    UNIQUE(idnr, program)
+    CONSTRAINT validProgram FOREIGN KEY (program) REFERENCES Programs (programName), 
+    UNIQUE(login)
 );
 
     
 CREATE TABLE Branches(
-    name    TEXT NOT NULL,
+    name     TEXT NOT NULL CHECK(name in ('B1', 'B2')),
     program TEXT NOT NULL,
     PRIMARY KEY (name, program)
 );
@@ -16,10 +34,11 @@ CREATE TABLE Branches(
 
 CREATE TABLE Courses(
     code CHAR(6) PRIMARY KEY NOT NULL,
-    name TEXT NOT NULL,
+    courseName TEXT NOT NULL,
     credits FLOAT(4) NOT NULL CONSTRAINT not_negative CHECK ( credits > 0),
-    department  TEXT NOT NULL, 
-    UNIQUE (name, department)
+    department TEXT NOT NULL,
+    CONSTRAINT validDepartment FOREIGN KEY (department) REFERENCES Departments (departmentName), --See department
+    UNIQUE (courseName, department)
 );
 
 

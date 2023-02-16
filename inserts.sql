@@ -1,6 +1,13 @@
 INSERT INTO Branches VALUES ('B1','Prog1');
 INSERT INTO Branches VALUES ('B2','Prog1');
 INSERT INTO Branches VALUES ('B1','Prog2');
+
+INSERT INTO Departments VALUES('Dep1', 'D1'); --new
+INSERT INTO Departments VALUES('Dep2', 'D2'); --new
+
+INSERT INTO Programs VALUES('Prog1', 'p1', 'Dep1');  --new
+INSERT INTO Programs VALUES('Prog2', 'p2', 'Dep2');  --new
+
 INSERT INTO Students VALUES ('1111111111','N1','ls1','Prog1');
 INSERT INTO Students VALUES ('2222222222','N2','ls2','Prog1');
 INSERT INTO Students VALUES ('3333333333','N3','ls3','Prog2');
