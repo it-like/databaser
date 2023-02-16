@@ -137,17 +137,34 @@ CREATE TABLE WaitingList(
     FOREIGN KEY (course) REFERENCES LimitedCourses (code),
     UNIQUE(course, position)
 );
+CREATE OR REPLACE FUNCTION checkIfPassed()
+RETURNS TRIGGER AS $$
+    BEGIN 
+        IF (SELECT NEW.grade) IN ('3','4','5') AND 
+            EXISTS (SELECT course, student FROM Registered where New.course = Registered.course AND NEW.student =Registered.student)
+        THEN 
+            RAISE NOTICE 'The student % has already read and passed the course % with grade %', NEW.student, NEW.course , NEW.grade;
+                                    DELETE FROM Registered WHERE course = NEW.course AND student = NEW.student;
 
+        END IF;
+        RETURN NEW;
+    END $$
+LANGUAGE PLPGSQL;
 
-
-CREATE OR REPLACE FUNCTION checkCapacity()
+CREATE OR REPLACE FUNCTION CheckCapacity()
 RETURNS TRIGGER AS $$
     DECLARE valueToGive INT; -- Contains the current length of the waitinglist queue.
-    BEGIN
+    BEGIN   
+        IF (SELECT grade
+                FROM  Taken, Courses
+                WHERE course = code AND course = NEW.course AND Taken.student = NEW.student) IN ('3','4','5')
+        THEN RAISE EXCEPTION 'Student % has already passed % with grade %', NEW.student, NEW.course, NEW.grade;    -- If inserted before taken 
+
         valueToGive := (SELECT COUNT(*) FROM Registered WHERE course=NEW.course);
         IF  (valueToGive) > (SELECT capacity FROM LimitedCourses WHERE code=NEW.course) 
             THEN
-                INSERT INTO WaitingList VALUES(NEW.student,NEW.course, (valueToGive + 1));
+                INSERT INTO WaitingList VALUES(NEW.student,NEW.course, (valueToGive - 10));
+        END IF;
         END IF;
         RETURN NEW;
     END $$
@@ -156,7 +173,15 @@ LANGUAGE PLPGSQL;
 DROP TRIGGER IF EXISTS checkCapacity ON Registered;
 
 CREATE TRIGGER checkCapacity
-BEFORE INSERT ON Registered
-FOR EACH ROW EXECUTE PROCEDURE checkCapacity();
+    BEFORE INSERT ON Registered
+    FOR EACH ROW EXECUTE PROCEDURE CheckCapacity();
 
 
+CREATE TRIGGER checkInTakenRemoveRegistered --if student has already taken a class (and passed) they should not be able to register to it again
+    BEFORE INSERT ON Taken
+    FOR EACH ROW EXECUTE PROCEDURE 
+    checkIfPassed();
+/*   SELECT grade
+                FROM  Taken, Courses
+                WHERE course = code AND course = NEW.course) IN ('3','4','5')
+        THEN RAISE EXCEPTION 'N00B';*/
