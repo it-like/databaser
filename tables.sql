@@ -55,29 +55,33 @@ CREATE TABLE StudentBranches(
     branch TEXT NOT NULL,
     program TEXT NOT NULL,
     FOREIGN KEY (student) REFERENCES Students (idnr),
-    FOREIGN KEY (branch, program) REFERENCES Branches (name, program)
+    FOREIGN KEY (branch, program) REFERENCES Branches (name, program),
+    CONSTRAINT validBranch FOREIGN KEY (branch, program) REFERENCES Branches (name, program) --See branch belongs to correct program
+
 );
 
 
 CREATE TABLE Classifications(
-      name TEXT PRIMARY KEY NOT NULL
+      name TEXT PRIMARY KEY NOT NULL,
+        CHECK (name IN ('math', 'research', 'seminar'))
+
 );
 
 
 CREATE TABLE Classified(
-    course CHAR(6),
+    code CHAR(6),
     classification TEXT,
-    FOREIGN KEY (course) REFERENCES Courses (code),
+    FOREIGN KEY (code) REFERENCES Courses (code),
     FOREIGN KEY (classification) REFERENCES Classifications (name),
-    PRIMARY KEY(course, classification)
+    PRIMARY KEY(code, classification)
 );
 
 
 CREATE TABLE MandatoryProgram(
-    course CHAR(6),      
+    code CHAR(6),      
     program TEXT NOT NULL,
-    PRIMARY KEY(course, program),
-    FOREIGN KEY (course) REFERENCES Courses (code)
+    PRIMARY KEY(code, program),
+    FOREIGN KEY (code) REFERENCES Courses (code)
 );
 
 
@@ -87,18 +91,22 @@ CREATE TABLE MandatoryBranch(
     program TEXT,
     PRIMARY KEY (course, branch, program),
     FOREIGN KEY (course) REFERENCES Courses (code),
-    FOREIGN KEY (branch, program) REFERENCES Branches (name, program)
+    FOREIGN KEY (branch, program) REFERENCES Branches (name, program),
+    UNIQUE(course, branch)
+
 );
 
 
 
 CREATE TABLE RecommendedBranch(
-    course CHAR(6),
+    courseCode CHAR(6),
     branch TEXT,
     program TEXT,
-    PRIMARY KEY (course, branch, program),
-    FOREIGN KEY (course) REFERENCES Courses (code),
-    FOREIGN KEY (branch, program) REFERENCES Branches (name, program)
+    PRIMARY KEY (courseCode, branch, program),
+    FOREIGN KEY (courseCode) REFERENCES Courses (code),
+    FOREIGN KEY (branch, program) REFERENCES Branches (name, program),
+    UNIQUE(courseCode, program)
+
 );
 
 

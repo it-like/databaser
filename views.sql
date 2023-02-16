@@ -26,7 +26,7 @@ CREATE VIEW Registrations AS
     SELECT student, course, 'registered' AS status FROM Registered;
     
 CREATE VIEW MandatoryCourses AS
-    SELECT MandatoryProgram.course, MandatoryProgram.program
+    SELECT MandatoryProgram.code, MandatoryProgram.program
     FROM MandatoryProgram
     UNION 
     SELECT MandatoryBranch.course, MandatoryBranch.program
@@ -35,10 +35,10 @@ CREATE VIEW MandatoryCourses AS
 --SELECT student, course FROM UnreadMandatory ORDER BY student;
 
 CREATE VIEW UnreadMandatory AS
-    SELECT BasicInformation.idnr as student, MandatoryProgram.course as course
+    SELECT BasicInformation.idnr as student, MandatoryProgram.code as course
     FROM BasicInformation, MandatoryProgram
     WHERE MandatoryProgram.program = BasicInformation.program 
-    AND BasicInformation.idnr NOT IN (SELECT PassedCourses.student FROM PassedCourses where PassedCourses.course = MandatoryProgram.course)
+    AND BasicInformation.idnr NOT IN (SELECT PassedCourses.student FROM PassedCourses where PassedCourses.course = MandatoryProgram.code)
     UNION
     SELECT BasicInformation.idnr as student, MandatoryBranch.course as course
     FROM BasicInformation, MandatoryBranch 
@@ -56,14 +56,14 @@ WITH
 MathCredits AS(
     SELECT student, SUM(PassedCourses.credits) AS sumCreditsMath  
     FROM PassedCourses, Classified
-    WHERE PassedCourses.course = Classified.course AND Classified.classification LIKE 'math'
+    WHERE PassedCourses.course = Classified.code AND Classified.classification LIKE 'math'
     GROUP BY student),
 
 
 ResearchCredits AS(
     SELECT student, SUM(PassedCourses.credits) AS sumCreditsRe  
     FROM PassedCourses, Classified
-    WHERE PassedCourses.course = Classified.course AND Classified.classification LIKE 'research'
+    WHERE PassedCourses.course = Classified.code AND Classified.classification LIKE 'research'
     GROUP BY student),
 
     
@@ -71,14 +71,14 @@ ResearchCredits AS(
  SeminarCourses AS(
     SELECT student, COUNT(PassedCourses.course) AS sumSeminars
     FROM PassedCourses, Classified
-    WHERE PassedCourses.course = Classified.course AND Classified.classification LIKE 'seminar'
+    WHERE PassedCourses.course = Classified.code AND Classified.classification LIKE 'seminar'
     GROUP BY student),
 
 
 sumBranchRecCred AS(
     SELECT student, SUM(PassedCourses.credits) AS sumRecBranch
     FROM PassedCourses, RecommendedBranch, BasicInformation
-    WHERE       PassedCourses.course = RecommendedBranch.course 
+    WHERE       PassedCourses.course = RecommendedBranch.courseCode
             AND PassedCourses.student = BasicInformation.idnr
             AND BasicInformation.program = RecommendedBranch.program
             AND BasicInformation.branch = RecommendedBranch.branch
