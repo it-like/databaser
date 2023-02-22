@@ -1,3 +1,31 @@
+CREATE VIEW CourseQueuePositions AS 
+    SELECT course, student, position as place
+    FROM WaitingList;    
+
+
+
+
+CREATE OR REPLACE FUNCTION throwError()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF 1 == 1
+    THEN
+    RAISE EXCEPTION 'This is course number %' NEW.code;
+    END IF;
+END$$
+LANGUAGE PLPGSQL;
+
+
+DROP TRIGGER IF EXISTS checkCapacity ON Courses;
+
+CREATE TRIGGER checkCapacity
+    BEFORE INSERT OR UPDATE ON Courses  
+    FOR EACH ROW EXECUTE PROCEDURE 
+    throwErrors();
+
+
+/*
+--UNNECESSARY triggers xd
 -- All functions
 CREATE OR REPLACE FUNCTION checkIfPassed()
 RETURNS TRIGGER AS $$
@@ -11,6 +39,8 @@ RETURNS TRIGGER AS $$
         RETURN NEW;
     END $$
 LANGUAGE PLPGSQL;
+
+
 
 CREATE OR REPLACE FUNCTION CheckCapacity()
 RETURNS TRIGGER AS $$
@@ -27,18 +57,20 @@ RETURNS TRIGGER AS $$
                 INSERT INTO WaitingList VALUES(NEW.student,NEW.course, (valueToGive - 10));
         END IF;
         END IF;
-        RETURN NEW;
+        RETURN NEW; 
     END $$
 LANGUAGE PLPGSQL;
 
-DROP TRIGGER IF EXISTS checkCapacity ON Registered;
+DROP TRIGGER IF EXISTS checkCapacity ON Registrations;
 
 CREATE TRIGGER checkCapacity
     BEFORE INSERT OR UPDATE ON Registered  
-    FOR EACH ROW EXECUTE PROCEDURE CheckCapacity();
+    FOR EACH ROW EXECUTE PROCEDURE 
+    CheckCapacity();
 
 
 CREATE TRIGGER checkInTakenRemoveRegistered --if student has already taken a class (and passed) they should not be able to register to it again
-    BEFORE INSERT ON Taken
+    BEFORE INSERT OR UPDATE ON Taken
     FOR EACH ROW EXECUTE PROCEDURE 
     checkIfPassed();
+*/
