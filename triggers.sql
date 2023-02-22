@@ -7,14 +7,16 @@ CREATE OR REPLACE FUNCTION CheckCapacity()
 RETURNS TRIGGER AS $$
     DECLARE valueToGive INT; -- Contains the current length of the waitinglist queue.
     BEGIN   
-        valueToGive := (SELECT COUNT(*) FROM Registered WHERE course=NEW.course);
-
+            -- also check that it is not already registered
         IF (SELECT grade
                 FROM  Taken, Courses
                 WHERE course = code AND course = NEW.course AND Taken.student = NEW.student)
                  IN ('3','4','5')
-                        THEN RAISE EXCEPTION 'Student % has already passed % with grade %', NEW.student, NEW.course, NEW.grade;    -- If inserted before taken
-        END IF;    
+                        THEN RAISE EXCEPTION 'Student % has already passed %', NEW.student, NEW.course;    -- If inserted before taken
+        END IF;
+        
+        valueToGive := (SELECT COUNT(*) FROM WaitingList WHERE course=NEW.course); -- 
+
         IF  (valueToGive) > (SELECT capacity FROM LimitedCourses WHERE code=NEW.course) 
             THEN
                 INSERT INTO WaitingList VALUES(NEW.student,NEW.course, (valueToGive + 1));
