@@ -3,26 +3,28 @@ CREATE VIEW CourseQueuePositions AS
     FROM WaitingList;    
 
 
-
-
 CREATE OR REPLACE FUNCTION throwError()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER AS 
+$$
 BEGIN
-    IF 1 == 1
+    IF true
     THEN
-    RAISE EXCEPTION 'This is course number %' NEW.code;
+    RAISE NOTICE 'This is course number %', NEW.code;
+    ELSE
+    RAISE EXCEPTION 'fuck'; 
     END IF;
-END$$
+    RETURN NEW;
+END
+$$
 LANGUAGE PLPGSQL;
 
-
-DROP TRIGGER IF EXISTS checkCapacity ON Courses;
 
 CREATE TRIGGER checkCapacity
     BEFORE INSERT OR UPDATE ON Courses  
     FOR EACH ROW EXECUTE PROCEDURE 
-    throwErrors();
+    throwError();
 
+    SELECT * FROM Courses;
 
 /*
 --UNNECESSARY triggers xd

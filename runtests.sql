@@ -17,7 +17,7 @@ SET client_min_messages TO NOTICE; -- More talk
 -- Note that these are not SQL statements but rather Postgres commands (no terminating ;). 
 \ir setup.sql
 \ir triggers.sql
-
+\ir tests.sql
 
 
 -- Tests various queries from the assignment, uncomment these as you make progress
@@ -28,7 +28,6 @@ SET client_min_messages TO NOTICE; -- More talk
 --SELECT student, course, credits FROM PassedCourses ORDER BY student;
 
 --SELECT student, course, status FROM Registrations ORDER BY student;
-SELECT * FROM Registered;
 
 --SELECT student, totalCredits, mandatoryLeft, mathCredits, researchCredits, seminarCourses, qualified FROM PathToGraduation ORDER BY student;
 -- Life-hack: When working on a new view you can write it as a query here (without creating a view) and when it works just add CREATE VIEW and put it in views.sql

@@ -1,0 +1,1 @@
+INSERT INTO Courses VALUES ('CCC000','C0',60,'Dep1');
