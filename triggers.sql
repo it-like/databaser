@@ -3,28 +3,34 @@ CREATE VIEW CourseQueuePositions AS
     FROM WaitingList;    
 
 
-CREATE OR REPLACE FUNCTION throwError()
-RETURNS TRIGGER AS 
-$$
-BEGIN
-    IF true
-    THEN
-    RAISE NOTICE 'This is course number %', NEW.code;
-    ELSE
-    RAISE EXCEPTION 'fuck'; 
-    END IF;
-    RETURN NEW;
-END
-$$
+CREATE OR REPLACE FUNCTION CheckCapacity()
+RETURNS TRIGGER AS $$
+    DECLARE valueToGive INT; -- Contains the current length of the waitinglist queue.
+    BEGIN   
+        valueToGive := (SELECT COUNT(*) FROM Registered WHERE course=NEW.course);
+
+        IF (SELECT grade
+                FROM  Taken, Courses
+                WHERE course = code AND course = NEW.course AND Taken.student = NEW.student)
+                 IN ('3','4','5')
+                        THEN RAISE EXCEPTION 'Student % has already passed % with grade %', NEW.student, NEW.course, NEW.grade;    -- If inserted before taken
+        END IF;    
+        IF  (valueToGive) > (SELECT capacity FROM LimitedCourses WHERE code=NEW.course) 
+            THEN
+                INSERT INTO WaitingList VALUES(NEW.student,NEW.course, (valueToGive + 1));
+            ELSE 
+                INSERT INTO registered VALUES(NEW.student, NEW.course );
+        END IF;
+        RETURN NEW; 
+    END $$
 LANGUAGE PLPGSQL;
 
 
-CREATE TRIGGER checkCapacity
-    BEFORE INSERT OR UPDATE ON Courses  
+CREATE TRIGGER trigger1
+    INSTEAD OF INSERT OR UPDATE ON Registrations  
     FOR EACH ROW EXECUTE PROCEDURE 
-    throwError();
+    CheckCapacity();
 
-    SELECT * FROM Courses;
 
 /*
 --UNNECESSARY triggers xd
