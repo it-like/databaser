@@ -33,17 +33,22 @@ RETURNS TRIGGER AS $$
     END $$
 LANGUAGE PLPGSQL;
 
+
 CREATE OR REPLACE FUNCTION removefromqueue()
 RETURNS TRIGGER AS $$
     DECLARE valueToGive INT; -- Contains the current length of the waitinglist queue.
+    DECLARE firstinqstudent TEXT;
     BEGIN   
             -- also check that it is not already registered
-        
-        valueToGive := (SELECT COUNT(*) FROM Registered WHERE course=NEW.course); -- 
-
-        IF  (valueToGive) < (SELECT capacity FROM LimitedCourses WHERE code=NEW.course) 
+        valueToGive := (SELECT COUNT(*) FROM Registered WHERE course=OLD.course); 
+        IF  (valueToGive) <= (SELECT capacity FROM LimitedCourses WHERE code=OLD.course) 
             THEN
-                INSERT INTO registered (SELECT student FROM WaitingList WHERE course = new.code AND position = 1)
+                firstinqstudent := (SELECT student FROM WaitingList WHERE course = OLD.course AND position = 1);
+                RAISE NOTICE 'hello';
+                DELETE FROM Registered WHERE student = OLD.student and course = OLD.course;
+                INSERT INTO registered VALUES (firstinqstudent, OLD.course);
+                DELETE FROM WaitingList WHERE (course = OLD.course AND position = 1);
+                UPDATE WaitingList SET position = position - 1 WHERE course = OLD.course;
             -- remove student from waitinglist position 1 and add that student to registered. decrement all 
             -- other waiting students queue position by 1
     
@@ -60,25 +65,8 @@ CREATE TRIGGER trigger1
     CheckCapacity();
 
 
-CREATE TRIGGER trigger 2
+CREATE TRIGGER trigger2
     INSTEAD OF DELETE ON Registrations
     FOR EACH ROW EXECUTE PROCEDURE
-    removefromqueue()
+    removefromqueue();
 
-/*
---UNNECESSARY triggers xd
--- All functions
-CREATE OR REPLACE FUNCTION checkIfPassed()
-RETURNS TRIGGER AS $$
-    BEGIN 
-        IF (SELECT NEW.grade) IN ('3','4','5') AND 
-            EXISTS (SELECT course, student FROM Registered where New.course = Registered.course AND NEW.student =Registered.student)
-        THEN 
-            RAISE EXCEPTION 'The student % has already read and passed the course % with grade %.', NEW.student, NEW.course , NEW.grade; -- notice as goes by
-            DELETE FROM Registered WHERE course = NEW.course AND student = NEW.student; -- removes raise notice 
-        END IF;
-        RETURN NEW;
-    END $$
-LANGUAGE PLPGSQL;
-
--- RAISE NOTICE 'Value: %', valueToGive; so big braiun print

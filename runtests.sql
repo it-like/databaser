@@ -18,7 +18,6 @@ SET client_min_messages TO NOTICE; -- More talk
 \ir setup.sql
 \ir triggers.sql
 \ir tests.sql
-SELECT * FROM CourseQueuePositions;
 
 
 -- Tests various queries from the assignment, uncomment these as you make progress
