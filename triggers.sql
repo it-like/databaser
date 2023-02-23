@@ -27,12 +27,37 @@ RETURNS TRIGGER AS $$
     END $$
 LANGUAGE PLPGSQL;
 
+CREATE OR REPLACE FUNCTION removefromqueue()
+RETURNS TRIGGER AS $$
+    DECLARE valueToGive INT; -- Contains the current length of the waitinglist queue.
+    BEGIN   
+            -- also check that it is not already registered
+        
+        valueToGive := (SELECT COUNT(*) FROM Registered WHERE course=NEW.course); -- 
+
+        IF  (valueToGive) < (SELECT capacity FROM LimitedCourses WHERE code=NEW.course) 
+            THEN
+                INSERT INTO registered (SELECT student FROM WaitingList WHERE course = new.code AND position = 1)
+            -- remove student from waitinglist position 1 and add that student to registered. decrement all 
+            -- other waiting students queue position by 1
+    
+        END IF;
+        RETURN NEW; 
+    END $$
+LANGUAGE PLPGSQL;
+
+
 
 CREATE TRIGGER trigger1
     INSTEAD OF INSERT OR UPDATE ON Registrations  
     FOR EACH ROW EXECUTE PROCEDURE 
     CheckCapacity();
 
+
+CREATE TRIGGER trigger 2
+    INSTEAD OF DELETE ON Registrations
+    FOR EACH ROW EXECUTE PROCEDURE
+    removefromqueue()
 
 /*
 --UNNECESSARY triggers xd
