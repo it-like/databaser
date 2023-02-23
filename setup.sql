@@ -325,31 +325,37 @@ INSERT INTO Students VALUES ('6666666666','N6','ls6','Prog2');
 INSERT INTO Students VALUES ('7777777777','N7','ls7','Prog2');
 INSERT INTO Students VALUES ('8888888888','N8','ls8','Prog1');
 INSERT INTO Students VALUES ('9999999999','N9','ls9','Prog1');
+
 INSERT INTO Courses VALUES ('CCC111','C1',22.5,'Dep1');
 INSERT INTO Courses VALUES ('CCC222','C2',20,'Dep1');
 INSERT INTO Courses VALUES ('CCC333','C3',30,'Dep1');
 INSERT INTO Courses VALUES ('CCC444','C4',60,'Dep1');
 INSERT INTO Courses VALUES ('CCC555','C5',50,'Dep1');
-INSERT INTO Courses VALUES ('CCC666','C6',40,'Dep1');
+
 INSERT INTO LimitedCourses VALUES ('CCC222',3); -- changed as there are 3 students registered to the course
 INSERT INTO LimitedCourses VALUES ('CCC333',3); -- -//-
-INSERT INTO LimitedCourses VALUES ('CCC666',3); -- -//-
+
 INSERT INTO Classifications VALUES ('math');
 INSERT INTO Classifications VALUES ('research');
 INSERT INTO Classifications VALUES ('seminar');
+
 INSERT INTO Classified VALUES ('CCC333','math');
 INSERT INTO Classified VALUES ('CCC444','math');
 INSERT INTO Classified VALUES ('CCC444','research');
 INSERT INTO Classified VALUES ('CCC444','seminar');
+
 INSERT INTO StudentBranches VALUES ('2222222222','B1','Prog1');
 INSERT INTO StudentBranches VALUES ('3333333333','B1','Prog2');
 INSERT INTO StudentBranches VALUES ('4444444444','B1','Prog1');
 INSERT INTO StudentBranches VALUES ('5555555555','B1','Prog2');
+
 INSERT INTO MandatoryProgram VALUES ('CCC111','Prog1');
 INSERT INTO MandatoryBranch VALUES ('CCC333', 'B1', 'Prog1');
 INSERT INTO MandatoryBranch VALUES ('CCC444', 'B1', 'Prog2');
+
 INSERT INTO RecommendedBranch VALUES ('CCC222', 'B1', 'Prog1');
 INSERT INTO RecommendedBranch VALUES ('CCC333', 'B1', 'Prog2');
+
 INSERT INTO Registered VALUES ('1111111111','CCC111');
 INSERT INTO Registered VALUES ('1111111111','CCC222');
 INSERT INTO Registered VALUES ('1111111111','CCC333');
