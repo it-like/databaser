@@ -1,4 +1,11 @@
+--
+--
+--
 --TABLES TABLES TABLES 
+--
+--
+--
+
  CREATE TABLE Departments(
     departmentName TEXT NOT NULL, --Dep1
     departmentAbbrivation TEXT NOT NULL,    --D1
@@ -141,7 +148,17 @@ CREATE TABLE WaitingList(
 
 
 
+--
+--
+--
+--
+--
 --VIEWS VIEWS VIEWS
+--
+--
+--
+--
+--
 
 
 --SELECT idnr, name, login, program, branch FROM BasicInformation ORDER BY idnr;
@@ -299,11 +316,15 @@ SELECT Students.idnr AS student,
 
 
 
-
-
-
-
+--
+--
+--
+--
 -- INSERT INSERT INSERT
+--
+--
+--
+--
 
 INSERT INTO Branches VALUES ('B1','Prog1');
 INSERT INTO Branches VALUES ('B2','Prog1');
