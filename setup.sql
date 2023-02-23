@@ -315,20 +315,25 @@ INSERT INTO Departments VALUES('Dep2', 'D2'); --new
 INSERT INTO Programs VALUES('Prog1', 'p1', 'Dep1');  --new
 INSERT INTO Programs VALUES('Prog2', 'p2', 'Dep2');  --new
 
+INSERT INTO Students VALUES ('0000000000','N0','ls0','Prog2');
 INSERT INTO Students VALUES ('1111111111','N1','ls1','Prog1');
 INSERT INTO Students VALUES ('2222222222','N2','ls2','Prog1');
 INSERT INTO Students VALUES ('3333333333','N3','ls3','Prog2');
 INSERT INTO Students VALUES ('4444444444','N4','ls4','Prog1');
-INSERT INTO Students VALUES ('5555555555','Nx','ls5','Prog2');
-INSERT INTO Students VALUES ('6666666666','Nx','ls6','Prog2');
-INSERT INTO Students VALUES ('7777777777','Nx','ls7','Prog2');
+INSERT INTO Students VALUES ('5555555555','N5','ls5','Prog2');
+INSERT INTO Students VALUES ('6666666666','N6','ls6','Prog2');
+INSERT INTO Students VALUES ('7777777777','N7','ls7','Prog2');
+INSERT INTO Students VALUES ('8888888888','N8','ls8','Prog1');
+INSERT INTO Students VALUES ('9999999999','N9','ls9','Prog1');
 INSERT INTO Courses VALUES ('CCC111','C1',22.5,'Dep1');
 INSERT INTO Courses VALUES ('CCC222','C2',20,'Dep1');
 INSERT INTO Courses VALUES ('CCC333','C3',30,'Dep1');
 INSERT INTO Courses VALUES ('CCC444','C4',60,'Dep1');
 INSERT INTO Courses VALUES ('CCC555','C5',50,'Dep1');
+INSERT INTO Courses VALUES ('CCC666','C6',40,'Dep1');
 INSERT INTO LimitedCourses VALUES ('CCC222',3); -- changed as there are 3 students registered to the course
 INSERT INTO LimitedCourses VALUES ('CCC333',3); -- -//-
+INSERT INTO LimitedCourses VALUES ('CCC666',3); -- -//-
 INSERT INTO Classifications VALUES ('math');
 INSERT INTO Classifications VALUES ('research');
 INSERT INTO Classifications VALUES ('seminar');
@@ -352,6 +357,9 @@ INSERT INTO Registered VALUES ('2222222222','CCC222');
 INSERT INTO Registered VALUES ('5555555555','CCC222');
 INSERT INTO Registered VALUES ('5555555555','CCC333');
 INSERT INTO Registered VALUES ('6666666666','CCC333');
+INSERT INTO Registered VALUES ('6666666666','CCC222');
+
+
 INSERT INTO Taken VALUES('4444444444','CCC111','5');
 INSERT INTO Taken VALUES('4444444444','CCC222','5');
 INSERT INTO Taken VALUES('4444444444','CCC333','5');
@@ -365,7 +373,6 @@ INSERT INTO Taken VALUES('2222222222','CCC444','U');
 
 INSERT INTO WaitingList VALUES('6666666666','CCC222',1);
 INSERT INTO WaitingList VALUES('3333333333','CCC222',2);
-
 INSERT INTO WaitingList VALUES('3333333333','CCC333',1);
 
 
