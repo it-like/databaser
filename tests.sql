@@ -1,4 +1,10 @@
+-- TEST #1: registered to an unlimited course
+-- EXPECTED OUTCOME: Pass
+INSERT INTO Registrations VALUES ('7777777777', 'CCC444'); 
 
+
+-- TEST #2: Register an already registered student.
+-- EXPECTED OUTCOME: Fail
 INSERT INTO Registered VALUES ('1111111111','CCC111');
 
 
@@ -31,4 +37,3 @@ DELETE FROM WaitingList WHERE student = '8888888888';
 
 -- TEST #9: unregistered from an overfull course with a waiting list.
 -- EXPECTED OUTCOME: 
-
