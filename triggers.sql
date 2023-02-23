@@ -23,7 +23,7 @@ RETURNS TRIGGER AS $$
                 getQueuePosition := (SELECT COUNT(*) FROM WaitingList WHERE course = NEW.course);                                                                   
                 RAISE NOTICE 'Capacity reached, placing student % on waiting list position % for course %',
                  NEW.student, getQueuePosition + 1, NEW.course;                   
-                INSERT INTO WaitingList VALUES(NEW.student,NEW.course, (getQueuePosition + 1));                  -- Put on waiting list
+                INSERT INTO WaitingList VALUES(NEW.student,NEW.course, (getQueuePosition + 1));   
             ELSE 
                 RAISE NOTICE 'Student registered % to course %', NEW.student, NEW.course;   
                 INSERT INTO registered VALUES(NEW.student, NEW.course );                                    -- Register student on course
@@ -48,6 +48,10 @@ RETURNS TRIGGER AS $$
         courseCapacity := (SELECT capacity FROM LimitedCourses WHERE code=OLD.course);
         inWaitingList := (1= (SELECT COUNT(student) from WaitingList where student = OLD.student AND course = OLD.course));
 
+        IF OLD.student NOT IN (SELECT student FROM Registrations where course = OLD.course) 
+            THEN    
+                RAISE NOTICE '% is not in this course.----------', OLD.student;  
+        END IF;
 
         IF  (studentsRegisteredOnCourse = courseCapacity) 
             AND (countPeopleInWaitingList > 0) 
