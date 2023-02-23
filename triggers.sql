@@ -8,25 +8,24 @@ RETURNS TRIGGER AS $$
     DECLARE studentsRegisteredOnCourse INT; -- Contains the current length of the waitinglist queue.
     DECLARE getQueuePosition INT;
     BEGIN   
-           
         IF EXISTS (SELECT course FROM Registered where course = NEW.course AND student = NEW.student)
             THEN RAISE EXCEPTION 'Student % is already registered on course %', NEW.student, NEW.course;    -- Covered in pkey constraint
         END IF;
-
         IF ((SELECT grade FROM  Taken, Courses WHERE course = code AND 
             course = NEW.course AND Taken.student = NEW.student)
                  IN ('3','4','5'))                                                                          -- Have not passed course
                         THEN RAISE EXCEPTION 'Student % has already passed %', NEW.student, NEW.course; 
         END IF;
         
-        studentsRegisteredOnCourse := (SELECT COUNT(*) FROM Registered WHERE course=NEW.course); 
-        IF  (studentsRegisteredOnCourse) = (SELECT capacity FROM LimitedCourses WHERE code=NEW.course)                     -- If Capacity reached
+        studentsRegisteredOnCourse := (SELECT COUNT(*) FROM Registrations WHERE course=NEW.course and status = 'registered'); 
+        IF  (studentsRegisteredOnCourse) >= (SELECT capacity FROM LimitedCourses WHERE code=NEW.course)                     -- If Capacity reached
             THEN    
                 getQueuePosition := (SELECT COUNT(*) FROM WaitingList WHERE course = NEW.course);                                                                   
-                RAISE NOTICE 'Capacity reached, placing on student % on waiting list position % for course %',
-                 NEW.student, studentsRegisteredOnCourse, NEW.course;                   
+                RAISE NOTICE 'Capacity reached, placing student % on waiting list position % for course %',
+                 NEW.student, getQueuePosition + 1, NEW.course;                   
                 INSERT INTO WaitingList VALUES(NEW.student,NEW.course, (getQueuePosition + 1));                  -- Put on waiting list
             ELSE 
+                RAISE NOTICE 'Student registered % to course %', NEW.student, NEW.course;   
                 INSERT INTO registered VALUES(NEW.student, NEW.course );                                    -- Register student on course
         END IF;
         RETURN NEW; 
@@ -34,37 +33,58 @@ RETURNS TRIGGER AS $$
 LANGUAGE PLPGSQL;
 
 
-CREATE OR REPLACE FUNCTION removefromqueue()
+CREATE OR REPLACE FUNCTION removefromqueue() 
 RETURNS TRIGGER AS $$
     DECLARE studentsRegisteredOnCourse INT; -- Contains the current length of the waitinglist queue.
-    DECLARE firstinqstudent TEXT;
+    DECLARE idnrForPosition1 TEXT;
+    DECLARE countPeopleInWaitingList INT;
+    DECLARE courseCapacity INT;
+    DECLARE queuePosition INT;
+    DECLARE inWaitingList BOOLEAN;
     BEGIN   
-            -- also check that it is not already registered
-        studentsRegisteredOnCourse := (SELECT COUNT(*) FROM Registered WHERE course=OLD.course); 
-        IF  (studentsRegisteredOnCourse) = (SELECT capacity FROM LimitedCourses WHERE code=OLD.course) 
-            THEN
-                RAISE NOTICE 'Removing student % and decrementing positions', OLD.student;
-                firstinqstudent := (SELECT student FROM WaitingList WHERE course = OLD.course AND position = 1); --idnr for position 1
 
-                RAISE NOTICE 'Removing student % from course %.', OLD.student, OLD.course;
-                DELETE FROM Registered WHERE student = OLD.student and course = OLD.course;
+        studentsRegisteredOnCourse := (SELECT COUNT(*) FROM Registrations WHERE course=OLD.course AND status = 'registered'); 
+        countPeopleInWaitingList := (SELECT COUNT(*) FROM WaitingList WHERE course = OLD.course);
+        courseCapacity := (SELECT capacity FROM LimitedCourses WHERE code=OLD.course);
+        inWaitingList := (1= (SELECT COUNT(student) from WaitingList where student = OLD.student AND course = OLD.course));
 
-                RAISE NOTICE 'Adding student % to course %', firstinqstudent, OLD.course;
-                INSERT INTO registered VALUES (firstinqstudent, OLD.course);
-                --if waitinglist != 0
-                RAISE NOTICE 'Removing student % from course %.', OLD.student, OLD.course;
-                DELETE FROM WaitingList WHERE (course = OLD.course AND position = 1);
 
-                RAISE NOTICE 'Updating the position for all students';
-                UPDATE WaitingList SET position = position - 1 WHERE course = OLD.course;
-            -- remove student from waitinglist position 1 and add that student to registered. decrement all 
-            -- other waiting students queue position by 1
+        IF  (studentsRegisteredOnCourse = courseCapacity) 
+            AND (countPeopleInWaitingList > 0) 
+            AND NOT inWaitingList
+                THEN
+                    idnrForPosition1 := (SELECT student FROM WaitingList WHERE course = OLD.course AND position = 1); 
+
+                    RAISE NOTICE 'Removing student % from course %.', OLD.student, OLD.course;
+                    DELETE FROM Registered WHERE student = OLD.student and course = OLD.course;
+
+                    RAISE NOTICE 'Adding student % to course %', idnrForPosition1, OLD.course;
+                    INSERT INTO registered VALUES (idnrForPosition1, OLD.course);
+                    DELETE FROM WaitingList WHERE (course = OLD.course AND position = 1);
+
+                    RAISE NOTICE 'Updating the position for all students';
+                    UPDATE WaitingList SET position = position - 1 WHERE course = OLD.course;
+                -- remove student from waitinglist position 1 and add that student to registered. decrement all 
+                -- other waiting students queue position by 1
         END IF;
         IF (studentsRegisteredOnCourse) > (SELECT capacity FROM LimitedCourses WHERE code=OLD.course) 
             THEN    
-                RAISE NOTICE 'The course is overbooked, only removing student % from course %.', OLD.student, OLD.course;
+                RAISE NOTICE 'The course is overbooked % students > % capacity.', studentsRegisteredOnCourse, courseCapacity;
+                RAISE NOTICE 'only removing student % from course %.', OLD.student, OLD.course;
                 DELETE FROM Registered WHERE student = OLD.student and course = OLD.course;
         END IF;
+        IF (inWaitingList)
+            THEN
+                queuePosition := (SELECT position FROM WaitingList where student = OLD.student AND course = OLD.course);
+                RAISE NOTICE 'Removing student % from waitingList, who had position %', OLD.student, queuePosition;
+                DELETE FROM WaitingList WHERE (course = OLD.course and student = OLD.student);
+                RAISE NOTICE 'fixing position of those behind.';
+                UPDATE WaitingList SET position = position - 1 WHERE course = OLD.course and queuePosition < position;
+        END IF;
+        IF (countPeopleInWaitingList = 0)
+            THEN
+                DELETE FROM Registered WHERE student = OLD.student and course = OLD.course;    
+        END IF;            
         RETURN OLD; 
     END $$
 LANGUAGE PLPGSQL;
