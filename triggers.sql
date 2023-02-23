@@ -6,22 +6,28 @@ CREATE VIEW CourseQueuePositions AS
 CREATE OR REPLACE FUNCTION CheckCapacity()
 RETURNS TRIGGER AS $$
     DECLARE valueToGive INT; -- Contains the current length of the waitinglist queue.
+    DECLARE getQueuePosition INT;
     BEGIN   
-            -- also check that it is not already registered
-        IF (SELECT grade
-                FROM  Taken, Courses
-                WHERE course = code AND course = NEW.course AND Taken.student = NEW.student)
-                 IN ('3','4','5')
-                        THEN RAISE EXCEPTION 'Student % has already passed %', NEW.student, NEW.course;    -- If inserted before taken
+           
+        IF EXISTS (SELECT course FROM Registered where course = NEW.course AND student = NEW.student)
+            THEN RAISE EXCEPTION 'Student % is already registered on course %', NEW.student, NEW.course;    -- Covered in pkey constraint
+        END IF;
+
+        IF ((SELECT grade FROM  Taken, Courses WHERE course = code AND 
+            course = NEW.course AND Taken.student = NEW.student)
+                 IN ('3','4','5'))                                                                          -- Have not passed course
+                        THEN RAISE EXCEPTION 'Student % has already passed %', NEW.student, NEW.course; 
         END IF;
         
-        valueToGive := (SELECT COUNT(*) FROM WaitingList WHERE course=NEW.course); -- 
-
-        IF  (valueToGive) > (SELECT capacity FROM LimitedCourses WHERE code=NEW.course) 
-            THEN
-                INSERT INTO WaitingList VALUES(NEW.student,NEW.course, (valueToGive + 1));
+        valueToGive := (SELECT COUNT(*) FROM Registered WHERE course=NEW.course); 
+        IF  (valueToGive) >= (SELECT capacity FROM LimitedCourses WHERE code=NEW.course)                     -- If Capacity reached
+            THEN    
+                getQueuePosition := (SELECT COUNT(*) FROM WaitingList WHERE course = NEW.course);                                                                   
+                RAISE NOTICE 'Capacity reached, placing on student % on waiting list position % for course %',
+                 NEW.student, valueToGive, NEW.course;                   
+                INSERT INTO WaitingList VALUES(NEW.student,NEW.course, (getQueuePosition + 1));                  -- Put on waiting list
             ELSE 
-                INSERT INTO registered VALUES(NEW.student, NEW.course );
+                INSERT INTO registered VALUES(NEW.student, NEW.course );                                    -- Register student on course
         END IF;
         RETURN NEW; 
     END $$
@@ -75,37 +81,4 @@ RETURNS TRIGGER AS $$
     END $$
 LANGUAGE PLPGSQL;
 
-
-
-CREATE OR REPLACE FUNCTION CheckCapacity()
-RETURNS TRIGGER AS $$
-    DECLARE valueToGive INT; -- Contains the current length of the waitinglist queue.
-    BEGIN   
-        IF (SELECT grade
-                FROM  Taken, Courses
-                WHERE course = code AND course = NEW.course AND Taken.student = NEW.student) IN ('3','4','5')
-        THEN RAISE EXCEPTION 'Student % has already passed % with grade %', NEW.student, NEW.course, NEW.grade;    -- If inserted before taken 
-
-        valueToGive := (SELECT COUNT(*) FROM Registered WHERE course=NEW.course);
-        IF  (valueToGive) > (SELECT capacity FROM LimitedCourses WHERE code=NEW.course) 
-            THEN
-                INSERT INTO WaitingList VALUES(NEW.student,NEW.course, (valueToGive - 10));
-        END IF;
-        END IF;
-        RETURN NEW; 
-    END $$
-LANGUAGE PLPGSQL;
-
-DROP TRIGGER IF EXISTS checkCapacity ON Registrations;
-
-CREATE TRIGGER checkCapacity
-    BEFORE INSERT OR UPDATE ON Registered  
-    FOR EACH ROW EXECUTE PROCEDURE 
-    CheckCapacity();
-
-
-CREATE TRIGGER checkInTakenRemoveRegistered --if student has already taken a class (and passed) they should not be able to register to it again
-    BEFORE INSERT OR UPDATE ON Taken
-    FOR EACH ROW EXECUTE PROCEDURE 
-    checkIfPassed();
-*/
+-- RAISE NOTICE 'Value: %', valueToGive; so big braiun print

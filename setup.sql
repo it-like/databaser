@@ -326,8 +326,8 @@ INSERT INTO Courses VALUES ('CCC222','C2',20,'Dep1');
 INSERT INTO Courses VALUES ('CCC333','C3',30,'Dep1');
 INSERT INTO Courses VALUES ('CCC444','C4',60,'Dep1');
 INSERT INTO Courses VALUES ('CCC555','C5',50,'Dep1');
-INSERT INTO LimitedCourses VALUES ('CCC222',1);
-INSERT INTO LimitedCourses VALUES ('CCC333',2);
+INSERT INTO LimitedCourses VALUES ('CCC222',3); -- changed as there are 3 students registered to the course
+INSERT INTO LimitedCourses VALUES ('CCC333',3); -- -//-
 INSERT INTO Classifications VALUES ('math');
 INSERT INTO Classifications VALUES ('research');
 INSERT INTO Classifications VALUES ('seminar');
