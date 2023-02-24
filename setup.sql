@@ -13,7 +13,6 @@
     UNIQUE(departmentName, departmentAbbrivation) --Exists only one departAbbr per department
 );
 
-
 CREATE TABLE Programs(
     programName TEXT NOT NULL, --Prog1
     programAbbrivation TEXT NOT NULL,   --p1
@@ -65,7 +64,6 @@ CREATE TABLE StudentBranches(
     FOREIGN KEY (student) REFERENCES Students (idnr),
     FOREIGN KEY (branch, program) REFERENCES Branches (name, program),
     CONSTRAINT validBranch FOREIGN KEY (branch, program) REFERENCES Branches (name, program) --See branch belongs to correct program
-
 );
 
 
@@ -100,7 +98,6 @@ CREATE TABLE MandatoryBranch(
     FOREIGN KEY (course) REFERENCES Courses (code),
     FOREIGN KEY (branch, program) REFERENCES Branches (name, program),
     UNIQUE(course, branch)
-
 );
 
 
@@ -113,7 +110,6 @@ CREATE TABLE RecommendedBranch(
     FOREIGN KEY (courseCode) REFERENCES Courses (code),
     FOREIGN KEY (branch, program) REFERENCES Branches (name, program),
     UNIQUE(courseCode, program)
-
 );
 
 
@@ -144,7 +140,7 @@ CREATE TABLE WaitingList(
     FOREIGN KEY (student) REFERENCES Students (idnr),
     FOREIGN KEY (course) REFERENCES LimitedCourses (code),
     UNIQUE(course, position)
-    );
+);
 
 
 
@@ -304,15 +300,6 @@ SELECT Students.idnr AS student,
     FULL OUTER JOIN 
         unreadMandatoryleft
     ON idnr = unreadMandatoryleft.student;
-
-
-
-
-
-
-
-
-
 
 
 
