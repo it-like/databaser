@@ -48,11 +48,6 @@ RETURNS TRIGGER AS $$
         courseCapacity := (SELECT capacity FROM LimitedCourses WHERE code=OLD.course);
         inWaitingList := (1= (SELECT COUNT(student) from WaitingList where student = OLD.student AND course = OLD.course));
 
-        IF OLD.student NOT IN (SELECT student FROM Registrations where course = OLD.course) 
-            THEN    
-                RAISE NOTICE '% is not in this course.----------', OLD.student;  
-        END IF;
-
         IF  (studentsRegisteredOnCourse = courseCapacity) 
             AND (countPeopleInWaitingList > 0) 
             AND NOT inWaitingList
