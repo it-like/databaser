@@ -12,7 +12,7 @@ import com.sun.net.httpserver.HttpServer;
 public class PortalServer {
     
     public static final int PORT = 8080;
-
+    
     public static void main(String[] args) throws Exception {
         PortalServer s = new PortalServer();
         s.server.start();
@@ -92,7 +92,7 @@ public class PortalServer {
                "                       <p>Name: ${data.name}</p>\n" +
                "                       <p>Login: ${data.login}</p>\n" +
                "                       <p>Program: ${data.program}</p>\n" +
-               "                       <p>Branch: ${data.branch || \"not selected\"}</p>\n" +
+               "                       <p>Branch: ${data.branch || \"Not selected\"}</p>\n" +
                "                       \n" +
                "                       <p>Read courses:<ul>\n" +
                "                       `;\n" +

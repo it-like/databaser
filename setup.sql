@@ -159,7 +159,7 @@ CREATE TABLE WaitingList(
 
 --SELECT idnr, name, login, program, branch FROM BasicInformation ORDER BY idnr;
 CREATE VIEW BasicInformation AS
-    SELECT  idnr, Students.name, login, Students.program, COALESCE(branch,(Null)) as branch
+    SELECT  idnr, Students.name , login, Students.program, COALESCE(branch,(Null)) as branch
     FROM    Students
     LEFT OUTER JOIN StudentBranches ON Students.idnr = StudentBranches.student;
 

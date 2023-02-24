@@ -49,6 +49,7 @@ public class PortalConnection {
 
     // Unregister a student from a course, returns a tiny JSON document (as a String)
     public String unregister(String student, String courseCode){
+      System.out.println("pee");
       return "{\"success\":false, \"error\":\"Unregistration is not implemented yet :(\"}";
     }
 
@@ -57,7 +58,7 @@ public class PortalConnection {
         
         try(PreparedStatement st = conn.prepareStatement(
             // replace this with something more useful
-            "SELECT jsonb_build_object('student',idnr,'name',name) AS jsondata FROM BasicInformation WHERE idnr=?"
+            "SELECT jsonb_build_object('student',idnr,'name',name, 'login', login, 'program', program, 'branch', branch ) AS jsondata FROM BasicInformation WHERE idnr=?"
             );){
             
             st.setString(1, student);
