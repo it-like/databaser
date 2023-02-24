@@ -37,20 +37,26 @@ public class PortalConnection {
 
     // Register a student on a course, returns a tiny JSON document (as a String)
     public String register(String student, String courseCode){
-      
-      // placeholder, remove along with this comment. 
-      return "{\"success\":false, \"error\":\"Registration is not implemented yet :(\"}";
-      
-      // Here's a bit of useful code, use it or delete it 
-      // } catch (SQLException e) {
-      //    return "{\"success\":false, \"error\":\""+getError(e)+"\"}";
-      // }     
+      try{   
+        throw new SQLException();    
+      }
+     catch (SQLException e) {
+         return "{\"success\":false, \"error\":\""+getError(e)+"\"}";
+     }     
     }
+    
 
     // Unregister a student from a course, returns a tiny JSON document (as a String)
     public String unregister(String student, String courseCode){
-      System.out.println("pee");
-      return "{\"success\":false, \"error\":\"Unregistration is not implemented yet :(\"}";
+
+      try{   
+        System.out.println("pee");
+        throw new SQLException();
+      }
+     catch (SQLException e) {
+         return "{\"success\":false, \"error\":\""+getError(e)+"\"}";
+     }     
+  
     }
 
     // Return a JSON document containing lots of information about a student, it should validate against the schema found in information_schema.json
