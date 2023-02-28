@@ -37,7 +37,7 @@ public class PortalConnection {
 
     // Register a student on a course, returns a tiny JSON document (as a String)
     public String register(String student, String courseCode){
-      try(PreparedStatement st = conn.prepareStatement("INSERT INTO Registered (student, course) VALUES (?,?)"
+      try(PreparedStatement st = conn.prepareStatement("INSERT INTO Registrations VALUES (?,?)"
         );){
        st.setString(1, student);
        st.setString(2, courseCode);
@@ -53,10 +53,14 @@ public class PortalConnection {
     // Unregister a student from a course, returns a tiny JSON document (as a String)
     public String unregister(String student, String courseCode){
 
-      try(PreparedStatement st = conn.prepareStatement("DELETE FROM Registered WHERE student = ? AND course = ? VALUES (?,?)"
+      try(PreparedStatement st = conn.prepareStatement("DELETE FROM Registrations WHERE student = ? AND course = ?"
         );){
        st.setString(1, student);
        st.setString(2, courseCode);
+       int deletedRows = st.executeUpdate();
+       if (deletedRows == 0) {
+        throw new SQLException();
+      }
        st.executeUpdate();
       }
      catch (SQLException e) {
