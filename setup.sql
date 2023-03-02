@@ -40,7 +40,7 @@ CREATE TABLE Branches(
 
 
 CREATE TABLE Courses(
-    code CHAR(6) PRIMARY KEY NOT NULL,
+    code CHAR(6) PRIMARY KEY,
     courseName TEXT NOT NULL,
     credits FLOAT(4) NOT NULL CONSTRAINT not_negative CHECK ( credits > 0),
     department TEXT NOT NULL,
@@ -48,7 +48,12 @@ CREATE TABLE Courses(
     UNIQUE (courseName, department)
 );
 
-
+CREATE TABLE PrerequisiteCourses(
+    code CHAR(6),
+    prerequisiteCourse CHAR(6) NOT NULL,
+    PRIMARY KEY(code, prerequisiteCourse),  
+    CONSTRAINT notSame CHECK (code != prerequisiteCourse)
+);
 
 CREATE TABLE LimitedCourses(
     code CHAR(6) PRIMARY KEY,
@@ -99,7 +104,6 @@ CREATE TABLE MandatoryBranch(
     FOREIGN KEY (branch, program) REFERENCES Branches (name, program),
     UNIQUE(course, branch)
 );
-
 
 
 CREATE TABLE RecommendedBranch(
@@ -339,6 +343,13 @@ INSERT INTO Courses VALUES ('CCC222','C2',20,'Dep1');
 INSERT INTO Courses VALUES ('CCC333','C3',30,'Dep1');
 INSERT INTO Courses VALUES ('CCC444','C4',60,'Dep1');
 INSERT INTO Courses VALUES ('CCC555','C5',50,'Dep1');
+INSERT INTO Courses VALUES ('CCC777','C7',30,'Dep2'); --epic new math course
+
+
+INSERT INTO PrerequisiteCourses VALUES('CCC777', 'CCC333');
+INSERT INTO PrerequisiteCourses VALUES('CCC777', 'CCC444');
+
+
 
 INSERT INTO LimitedCourses VALUES ('CCC222',3); -- changed as there are 3 students registered to the course
 INSERT INTO LimitedCourses VALUES ('CCC333',3); -- -//-
