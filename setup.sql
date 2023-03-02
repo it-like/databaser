@@ -146,12 +146,6 @@ CREATE TABLE WaitingList(
     UNIQUE(course, position)
 );
 
-CREATE TABLE PrerequisiteCourses(
-    code CHAR(6),
-    prerequisiteCourse CHAR(6) NOT NULL,
-    PRIMARY KEY(code, prerequisiteCourse),
-    CONSTRAINT notSame CHECK (code != prerequisiteCourse)
-);
 
 --
 --
@@ -400,13 +394,13 @@ INSERT INTO Taken VALUES('5555555555','CCC444','3');
 INSERT INTO Taken VALUES('2222222222','CCC111','U');
 INSERT INTO Taken VALUES('2222222222','CCC222','U');
 INSERT INTO Taken VALUES('2222222222','CCC444','U');
-INSERT INTO Taken VALUES('6666666666','CCC444', '3')
+INSERT INTO Taken VALUES('6666666666','CCC444', '3');
 
 INSERT INTO WaitingList VALUES('6666666666','CCC222',1);
 INSERT INTO WaitingList VALUES('3333333333','CCC222',2);
 INSERT INTO WaitingList VALUES('3333333333','CCC333',1);
 
-INSER INTO PrerequisiteCourses VALUES('CCC555', 'CCC444');
+INSERT INTO PrerequisiteCourses VALUES('CCC555', 'CCC444');
 
 
 

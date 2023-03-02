@@ -3,11 +3,16 @@ CREATE VIEW CourseQueuePositions AS
     FROM WaitingList;    
 
 
-CREATE OR REPLACE FUNCTION CheckCapacity()
+CREATE OR REPLACE FUNCTION registration()
 RETURNS TRIGGER AS $$
     DECLARE studentsRegisteredOnCourse INT; -- Contains the current length of the waitinglist queue.
     DECLARE getQueuePosition INT;
     BEGIN   
+        IF EXISTS (SELECT code FROM PrerequisiteCourses WHERE code = NEW.course)
+            THEN IF NOT (false)
+                     THEN RAISE EXCEPTION 'The student % have not met the prerequisites for this course', NEW.student;
+            END IF;
+        END IF;
         IF EXISTS (SELECT course FROM Registered where course = NEW.course AND student = NEW.student)
             THEN RAISE EXCEPTION 'Student % is already registered on course %', NEW.student, NEW.course;    -- Covered in pkey constraint
         END IF;
@@ -33,7 +38,7 @@ RETURNS TRIGGER AS $$
 LANGUAGE PLPGSQL;
 
 
-CREATE OR REPLACE FUNCTION removefromqueue() 
+CREATE OR REPLACE FUNCTION unregistration() 
 RETURNS TRIGGER AS $$
     DECLARE studentsRegisteredOnCourse INT; -- Contains the current length of the waitinglist queue.
     DECLARE idnrForPosition1 TEXT;
@@ -98,11 +103,11 @@ LANGUAGE PLPGSQL;
 CREATE TRIGGER registerTrigger
     INSTEAD OF INSERT OR UPDATE ON Registrations  
     FOR EACH ROW EXECUTE PROCEDURE 
-    CheckCapacity();
+    registration();
 
 
 CREATE TRIGGER unregisterTrigger
     INSTEAD OF DELETE ON Registrations
     FOR EACH ROW EXECUTE PROCEDURE
-    removefromqueue();
+    unregistration();
 

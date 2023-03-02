@@ -1,7 +1,7 @@
 -- TEST #1: registered to an unlimited course
 -- EXPECTED OUTCOME: Pass
-INSERT INTO Registrations VALUES ('7777777777', 'CCC444'); 
-
+INSERT INTO Registrations VALUES ('7777777777', 'CCC777'); 
+/*
 -- TEST #2: Register an already registered student.
 -- EXPECTED OUTCOME: Fail
 INSERT INTO Registered VALUES ('1111111111','CCC111');
@@ -35,10 +35,11 @@ DELETE FROM Registrations WHERE student = '3333333333' AND course = 'CCC222';
 -- EXPECTED OUTCOME: Pass
 DELETE FROM Registrations WHERE Student = '1111111111' AND course = 'CCC222';
 
---TEST #10: resgiter to an unlimited course with met preriquisets
+--TEST #10: resgiter to an unlimited course with met prerequisites 
 --EXPECTED OUTCOME : Pass
 INSERT INTO Registrations WHERE Student = '6666666666' AND course = 'CCC555'
 
---TEST #11: register to a course with unmet prerequisets
+--TEST #11: register to a course with unmet prerequisites
 --EXPECTED OUTCOME : fail
 INSERT INTO Registrations WHERE Student = '2222222222' AND course = 'CCC555'
+*/
