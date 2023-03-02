@@ -95,13 +95,13 @@ LANGUAGE PLPGSQL;
 
 
 
-CREATE TRIGGER trigger1
+CREATE TRIGGER registerTrigger
     INSTEAD OF INSERT OR UPDATE ON Registrations  
     FOR EACH ROW EXECUTE PROCEDURE 
     CheckCapacity();
 
 
-CREATE TRIGGER trigger2
+CREATE TRIGGER unregisterTrigger
     INSTEAD OF DELETE ON Registrations
     FOR EACH ROW EXECUTE PROCEDURE
     removefromqueue();
