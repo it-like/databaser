@@ -76,11 +76,11 @@ public class PortalConnection {
           "SELECT jsonb_build_object('student', idnr, 'name', name, 'login', login, 'program', program, 'branch', branch, "+
           "'finished', (SELECT COALESCE(json_agg(jsonb_build_object('code', FinishedCourses.course, 'course', Courses.courseName, 'credits', Courses.credits, 'grade', FinishedCourses.grade)), null) FROM FinishedCourses INNER JOIN Courses ON FinishedCourses.course = Courses.code WHERE FinishedCourses.student = idnr), " +
           "'registered', (SELECT COALESCE(json_agg(jsonb_build_object('code', course, 'course', courseName, 'status', status)), null) FROM Registrations INNER JOIN Courses ON Registrations.course = Courses.code WHERE Registrations.student = idnr), " +
-          "'seminarCourses', (SELECT seminarCourses FROM PathToGraduation WHERE student = idnr),"+
-          "'mathCredits',(SELECT COUNT(PassedCourses.course) AS sumMath FROM PassedCourses, Classified WHERE PassedCourses.course = Classified.code AND Classified.classification LIKE 'math' AND PassedCourses.student = BasicInformation.idnr), " +
-          "'researchCredits', (SELECT COUNT(PassedCourses.course) AS sumResearch FROM PassedCourses, Classified WHERE PassedCourses.course = Classified.code AND Classified.classification LIKE 'research' AND PassedCourses.student = BasicInformation.idnr), " +
-          "'totalCredits',(SELECT SUM(credits) AS totCredits FROM PassedCourses WHERE PassedCourses.student = BasicInformation.idnr), "+
-          "'canGraduate', (SELECT qualified FROM PathToGraduation WHERE student = idnr)"+
+          "'seminarCourses',  (SELECT seminarCourses from PathToGraduation where student = idnr),"+
+          "'mathCredits', (SELECT mathCredits from PathToGraduation where student = idnr),"+
+          "'researchCredits',  (SELECT researchCredits from PathToGraduation where student = idnr),"+
+          "'totalCredits', (SELECT totalCredits from PathToGraduation where student = idnr),"+
+          "'canGraduate', (SELECT qualified from PathToGraduation where student = idnr)"+
           ") AS jsondata FROM BasicInformation WHERE idnr = ?;"
             );){
             
