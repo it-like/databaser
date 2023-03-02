@@ -73,8 +73,15 @@ public class PortalConnection {
     public String getInfo(String student) throws SQLException{
         
         try(PreparedStatement st = conn.prepareStatement(
-            // replace this with something more useful
-            "SELECT jsonb_build_object('student',idnr,'name',name, 'login', login, 'program', program, 'branch', branch ) AS jsondata FROM BasicInformation WHERE idnr=?"
+          "SELECT jsonb_build_object('student', idnr, 'name', name, 'login', login, 'program', program, 'branch', branch, "+
+          "'finished', (SELECT COALESCE(json_agg(jsonb_build_object('course', course)), null) FROM FinishedCourses WHERE student = idnr), " +
+          "'registered', (SELECT COALESCE(json_agg(jsonb_build_object('course',course)),null) FROM Registrations WHERE student = idnr)," +
+          "'seminarCourses', (SELECT(jsonb_build_object('sumSeminar', SELECT SeminarCourses.sumSeminar FROM PathToGraduation WHERE student = idnr " +
+          /* "'mathCredits',"+
+          "'researchCredits',"+
+          "'totalCredits',"+
+          "'canGraduate',"+*/
+          ") AS jsondata FROM BasicInformation WHERE idnr = ?;"
             );){
             
             st.setString(1, student);
@@ -98,3 +105,5 @@ public class PortalConnection {
        return message;
     }
 }
+
+
