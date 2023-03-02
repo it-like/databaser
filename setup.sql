@@ -345,9 +345,9 @@ INSERT INTO Courses VALUES ('CCC555','C5',50,'Dep1');
 INSERT INTO Courses VALUES ('CCC777','C7',30,'Dep2'); --epic new math course
 
 
-INSERT INTO PrerequisiteCourses VALUES('CCC777', 'CCC333');
+--INSERT INTO PrerequisiteCourses VALUES('CCC777', 'CCC333');
 INSERT INTO PrerequisiteCourses VALUES('CCC777', 'CCC444');
-
+INSERT INTO PrerequisiteCourses VALUES('CCC555', 'CCC444');
 
 
 INSERT INTO LimitedCourses VALUES ('CCC222',3); -- changed as there are 3 students registered to the course
@@ -395,12 +395,11 @@ INSERT INTO Taken VALUES('2222222222','CCC111','U');
 INSERT INTO Taken VALUES('2222222222','CCC222','U');
 INSERT INTO Taken VALUES('2222222222','CCC444','U');
 INSERT INTO Taken VALUES('6666666666','CCC444', '3');
+--INSERT INTO Taken VALUES('7777777777','CCC444', '3');
 
 INSERT INTO WaitingList VALUES('6666666666','CCC222',1);
 INSERT INTO WaitingList VALUES('3333333333','CCC222',2);
 INSERT INTO WaitingList VALUES('3333333333','CCC333',1);
-
-INSERT INTO PrerequisiteCourses VALUES('CCC555', 'CCC444');
 
 
 

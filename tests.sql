@@ -1,5 +1,8 @@
 -- TEST #1: registered to an unlimited course
 -- EXPECTED OUTCOME: Pass
+--INSERT INTO Registrations VALUES ('7777777777', 'CCC333'); 
+--INSERT INTO Registrations VALUES ('7777777777', 'CCC444'); 
+
 INSERT INTO Registrations VALUES ('7777777777', 'CCC777'); 
 /*
 -- TEST #2: Register an already registered student.
