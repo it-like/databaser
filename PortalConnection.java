@@ -74,9 +74,9 @@ public class PortalConnection {
         
         try(PreparedStatement st = conn.prepareStatement(
           "SELECT jsonb_build_object('student', idnr, 'name', name, 'login', login, 'program', program, 'branch', branch, "+
-          "'finished', (SELECT COALESCE(json_agg(jsonb_build_object('course', course)), null) FROM FinishedCourses WHERE student = idnr), " +
-          "'registered', (SELECT COALESCE(json_agg(jsonb_build_object('course',course)),null) FROM Registrations WHERE student = idnr)," +
-          "'seminarCourses', (SELECT(jsonb_build_object('sumSeminar', SELECT SeminarCourses.sumSeminar FROM PathToGraduation WHERE student = idnr " +
+          "'finished', (SELECT COALESCE(json_agg(jsonb_build_object('code',course, 'course', courseName, 'credits', Courses.credits, 'grade', grade)), null) FROM FinishedCourses INNER JOIN Courses ON FinishedCourses.course = Courses.code WHERE FinishedCourses.student = idnr), " +
+          "'registered', (SELECT COALESCE(json_agg(jsonb_build_object('course',course)),null) FROM Registrations WHERE student = idnr)" +
+          //"'seminarCourses', (SELECT(jsonb_build_object('sumSeminar', SELECT SeminarCourses.sumSeminar FROM PathToGraduation WHERE student = idnr " +
           /* "'mathCredits',"+
           "'researchCredits',"+
           "'totalCredits',"+
