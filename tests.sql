@@ -34,3 +34,11 @@ DELETE FROM Registrations WHERE student = '3333333333' AND course = 'CCC222';
 -- TEST #9: unregistered from an overfull course with a waiting list.
 -- EXPECTED OUTCOME: Pass
 DELETE FROM Registrations WHERE Student = '1111111111' AND course = 'CCC222';
+
+--TEST #10: resgiter to an unlimited course with met preriquisets
+--EXPECTED OUTCOME : Pass
+INSERT INTO Registrations WHERE Student = '6666666666' AND course = 'CCC555'
+
+--TEST #11: register to a course with unmet prerequisets
+--EXPECTED OUTCOME : fail
+INSERT INTO Registrations WHERE Student = '2222222222' AND course = 'CCC555'
