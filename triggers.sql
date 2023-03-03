@@ -3,18 +3,26 @@ CREATE VIEW CourseQueuePositions AS
     FROM WaitingList;    
 
 
-CREATE OR REPLACE FUNCTION CheckCapacity()
+CREATE OR REPLACE FUNCTION registration()
 RETURNS TRIGGER AS $$
     DECLARE studentsRegisteredOnCourse INT; -- Contains the current length of the waitinglist queue.
     DECLARE getQueuePosition INT;
+    DECLARE prerequisitecourseint INT;
     BEGIN   
+
+        IF EXISTS (SELECT code FROM PrerequisiteCourses WHERE code = NEW.course)
+            THEN IF EXISTS ((SELECT prerequisitecourse FROM PrerequisiteCourses where code = NEW.course  AND prerequisitecourse NOT IN (SELECT course FROM PassedCourses WHERE PassedCourses.student = NEW.student)))
+                     THEN RAISE EXCEPTION 'The student % have not met the prerequisites for this course', NEW.student;
+            END IF;
+        END IF;
         IF EXISTS (SELECT course FROM Registered where course = NEW.course AND student = NEW.student)
             THEN RAISE EXCEPTION 'Student % is already registered on course %', NEW.student, NEW.course;    -- Covered in pkey constraint
         END IF;
+
         IF ((SELECT grade FROM  Taken, Courses WHERE course = code AND 
             course = NEW.course AND Taken.student = NEW.student)
                  IN ('3','4','5'))                                                                          -- Have not passed course
-                        THEN RAISE EXCEPTION 'Student % has already passed %', NEW.student, NEW.course; 
+                    THEN RAISE EXCEPTION 'Student % has already passed %', NEW.student, NEW.course; 
         END IF;
         
         studentsRegisteredOnCourse := (SELECT COUNT(*) FROM Registrations WHERE course=NEW.course and status = 'registered'); 
@@ -33,7 +41,7 @@ RETURNS TRIGGER AS $$
 LANGUAGE PLPGSQL;
 
 
-CREATE OR REPLACE FUNCTION removefromqueue() 
+CREATE OR REPLACE FUNCTION unregistration() 
 RETURNS TRIGGER AS $$
     DECLARE studentsRegisteredOnCourse INT; -- Contains the current length of the waitinglist queue.
     DECLARE idnrForPosition1 TEXT;
@@ -47,6 +55,11 @@ RETURNS TRIGGER AS $$
         countPeopleInWaitingList := (SELECT COUNT(*) FROM WaitingList WHERE course = OLD.course);
         courseCapacity := (SELECT capacity FROM LimitedCourses WHERE code=OLD.course);
         inWaitingList := (1= (SELECT COUNT(student) from WaitingList where student = OLD.student AND course = OLD.course));
+
+        IF OLD.student NOT IN (SELECT student FROM Registrations where course = OLD.course) 
+            THEN    
+                RAISE NOTICE '% is not in this course.----------', OLD.student;  
+        END IF;
 
         IF  (studentsRegisteredOnCourse = courseCapacity) 
             AND (countPeopleInWaitingList > 0) 
@@ -90,14 +103,14 @@ LANGUAGE PLPGSQL;
 
 
 
-CREATE TRIGGER trigger1
+CREATE TRIGGER registerTrigger
     INSTEAD OF INSERT OR UPDATE ON Registrations  
     FOR EACH ROW EXECUTE PROCEDURE 
-    CheckCapacity();
+    registration();
 
 
-CREATE TRIGGER trigger2
+CREATE TRIGGER unregisterTrigger
     INSTEAD OF DELETE ON Registrations
     FOR EACH ROW EXECUTE PROCEDURE
-    removefromqueue();
+    unregistration();
 
