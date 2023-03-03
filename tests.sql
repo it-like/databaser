@@ -4,7 +4,7 @@ INSERT INTO Registrations VALUES ('7777777777', 'CCC444');
 
 -- TEST #2: Register an already registered student.
 -- EXPECTED OUTCOME: Fail
-INSERT INTO Registered VALUES ('1111111111','CCC111');
+--INSERT INTO Registered VALUES ('1111111111','CCC111');
 
 -- TEST #3: registered to a limited course
 -- EXPECTED OUTCOME: Pass

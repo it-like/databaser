@@ -30,7 +30,7 @@ RETURNS TRIGGER AS $$
             THEN    
                 getQueuePosition := (SELECT COUNT(*) FROM WaitingList WHERE course = NEW.course);                                                                   
                 RAISE NOTICE 'Capacity reached, placing student % on waiting list position % for course %',
-                 NEW.student, getQueuePosition + 1, NEW.course;                   
+                 NEW.student,   + 1, NEW.course;                   
                 INSERT INTO WaitingList VALUES(NEW.student,NEW.course, (getQueuePosition + 1));   
             ELSE 
                 RAISE NOTICE 'Student registered % to course %', NEW.student, NEW.course;   

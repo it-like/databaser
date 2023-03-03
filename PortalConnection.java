@@ -52,7 +52,18 @@ public class PortalConnection {
 
     // Unregister a student from a course, returns a tiny JSON document (as a String)
     public String unregister(String student, String courseCode){
-
+      try(Statement s = conn.createStatement();){
+        int deletedRows = s.executeUpdate("DELETE FROM Registrations WHERE student = '"+student+"' AND course = '"+courseCode+"'");
+        if (deletedRows == 0) {
+         throw new SQLException();
+       }
+        }
+      catch (SQLException e) {
+        return "{\"success\":false, \"error\":\""+getError(e)+"\"}";
+      }
+      return "{\"success\":true}";
+     }
+      /* 
       try(PreparedStatement st = conn.prepareStatement("DELETE FROM Registrations WHERE student = ? AND course = ?"
         );){
        st.setString(1, student);
@@ -68,6 +79,9 @@ public class PortalConnection {
      }     
      return "{\"success\":true}";
     }
+    */
+
+
 
     // Return a JSON document containing lots of information about a student, it should validate against the schema found in information_schema.json
     public String getInfo(String student) throws SQLException{
@@ -105,5 +119,3 @@ public class PortalConnection {
        return message;
     }
 }
-
-
