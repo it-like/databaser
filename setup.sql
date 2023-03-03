@@ -40,7 +40,7 @@ CREATE TABLE Branches(
 
 
 CREATE TABLE Courses(
-    code CHAR(6) PRIMARY KEY NOT NULL,
+    code CHAR(6) PRIMARY KEY,
     courseName TEXT NOT NULL,
     credits FLOAT(4) NOT NULL CONSTRAINT not_negative CHECK ( credits > 0),
     department TEXT NOT NULL,
@@ -48,7 +48,12 @@ CREATE TABLE Courses(
     UNIQUE (courseName, department)
 );
 
-
+CREATE TABLE PrerequisiteCourses(
+    code CHAR(6),
+    prerequisiteCourse CHAR(6) NOT NULL,
+    PRIMARY KEY(code, prerequisiteCourse),  
+    CONSTRAINT notSame CHECK (code != prerequisiteCourse)
+);
 
 CREATE TABLE LimitedCourses(
     code CHAR(6) PRIMARY KEY,
@@ -101,7 +106,6 @@ CREATE TABLE MandatoryBranch(
 );
 
 
-
 CREATE TABLE RecommendedBranch(
     courseCode CHAR(6),
     branch TEXT,
@@ -143,7 +147,6 @@ CREATE TABLE WaitingList(
 );
 
 
-
 --
 --
 --
@@ -159,7 +162,7 @@ CREATE TABLE WaitingList(
 
 --SELECT idnr, name, login, program, branch FROM BasicInformation ORDER BY idnr;
 CREATE VIEW BasicInformation AS
-    SELECT  idnr, Students.name , login, Students.program, COALESCE(branch,(Null)) as branch
+    SELECT  idnr, Students.name, login, Students.program, COALESCE(branch,(Null)) as branch
     FROM    Students
     LEFT OUTER JOIN StudentBranches ON Students.idnr = StudentBranches.student;
 
@@ -339,6 +342,13 @@ INSERT INTO Courses VALUES ('CCC222','C2',20,'Dep1');
 INSERT INTO Courses VALUES ('CCC333','C3',30,'Dep1');
 INSERT INTO Courses VALUES ('CCC444','C4',60,'Dep1');
 INSERT INTO Courses VALUES ('CCC555','C5',50,'Dep1');
+INSERT INTO Courses VALUES ('CCC777','C7',30,'Dep2'); --epic new math course
+
+
+INSERT INTO PrerequisiteCourses VALUES('CCC777', 'CCC333');
+INSERT INTO PrerequisiteCourses VALUES('CCC777', 'CCC444');
+INSERT INTO PrerequisiteCourses VALUES('CCC555', 'CCC444');
+
 
 INSERT INTO LimitedCourses VALUES ('CCC222',3); -- changed as there are 3 students registered to the course
 INSERT INTO LimitedCourses VALUES ('CCC333',3); -- -//-
@@ -384,48 +394,11 @@ INSERT INTO Taken VALUES('5555555555','CCC444','3');
 INSERT INTO Taken VALUES('2222222222','CCC111','U');
 INSERT INTO Taken VALUES('2222222222','CCC222','U');
 INSERT INTO Taken VALUES('2222222222','CCC444','U');
+INSERT INTO Taken VALUES('6666666666','CCC444', '3');
+INSERT INTO Taken VALUES('7777777777','CCC333', '3'); 
+
 
 INSERT INTO WaitingList VALUES('6666666666','CCC222',1);
 INSERT INTO WaitingList VALUES('3333333333','CCC222',2);
 INSERT INTO WaitingList VALUES('3333333333','CCC333',1);
 
-
-
-
-
---SELECT student, totalCredits, mandatoryLeft, mathCredits, researchCredits, seminarCourses, qualified FROM PathToGraduation ORDER BY student;
-
-
-/*
-
-CREATE FUNCTION testONe() RETURNS TRIGGER AS   
-$$
-    DECLARE countPositions INT;
-    BEGIN
-            SELECT COUNT(*) INTO countPositions
-            FROM CourseQueuePositions
-            WHERE course = NEW.course;
-        IF (NEW.position = countPositions) THEN
-            RETURN NEW;
-        ELSE 
-            RAISE EXCEPTION 'bro what are you doing?';
-        END IF;
-    END  
-$$ LANGUAGE plpgsql;
-    
-
-CREATE FUNCTION compact() RETURNS TRIGGER AS 
-$$
-    BEGIN  
-        UPDATE WaitingList set position = position - 1
-        WHERE course = old.course and position > OLD.position;
-        RETURN OLD;
-    END
-$$LANGUAGE plpgsql;
-
-
-CREATE TRIGGER duplicate_queue
-    AFTER INSERT ON WaitingList
-    FOR EACH ROW 
-    EXECUTE FUNCTION testONe();
-*/
