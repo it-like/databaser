@@ -16,6 +16,8 @@ public class TestPortal {
           * TEST 1
           * listing info for student
           */
+          System.out.println("1");
+
          prettyPrint(c.getInfo("9999999999")); 
          pause();
 
@@ -24,6 +26,8 @@ public class TestPortal {
           * register a student for an unrestricted course and print the
           * infomation about the student to check that they are registered
           */
+          System.out.println("2");
+
          System.out.println(c.register("9999999999", "CCC111"));
          prettyPrint(c.getInfo("9999999999"));
          pause();
@@ -33,6 +37,7 @@ public class TestPortal {
           * TEST 3
           * Register the same student for the same course again
           */
+          System.out.println("3");
          System.out.println(c.register("9999999999", "CCC111"));
          pause();
 
@@ -44,6 +49,7 @@ public class TestPortal {
            *  that the student is no longer registered and that
            *  the second unregistration gives an error response.
            */
+        System.out.println("4");
          System.out.println(c.unregister("9999999999", "CCC111"));
          System.out.println(c.unregister("9999999999", "CCC111")); 
          prettyPrint(c.getInfo("9999999999"));
@@ -56,8 +62,12 @@ public class TestPortal {
            * Register the student for a course that he/she does not have
            *  the prerequisites for, and check that an error is generated.
            */
+          System.out.println("5");
+
          System.out.println(c.register("9999999999", "CCC555"));
          pause();
+
+
 
            /*
            * TEST 6
@@ -66,6 +76,13 @@ public class TestPortal {
            * Register the student again to the same course and check that the
            * student gets the correct (last) position in the waiting list.
            */
+          System.out.println("6 ");
+
+         System.out.println(c.unregister("2222222222", "CCC222"));
+         System.out.println(c.register("2222222222", "CCC222"));
+         System.out.println("hur får jag fram waitinglist för en kurs härifrån????");
+         pause();
+
 
 
 
@@ -75,6 +92,14 @@ public class TestPortal {
            * restricted course, and check that the student is first removed
            * and then ends up in the same position as before (last).
            */
+          System.out.println("7");
+        prettyPrint(c.getInfo("2222222222"));
+         System.out.println(c.unregister("2222222222", "CCC222"));
+         prettyPrint(c.getInfo("2222222222"));
+         System.out.println(c.register("2222222222", "CCC222"));
+         prettyPrint(c.getInfo("2222222222"));
+         pause();
+
 
 
 
@@ -86,6 +111,12 @@ public class TestPortal {
            * directly).  Check that no student was moved from the queue to 
            * being registered as a result.
            */
+          System.out.println("8");
+
+         System.out.println(c.unregister("5555555555", "CCC333"));
+         System.out.println("Hur tar jag fram waitinglist? Idk");
+         pause();
+
 
 
 
@@ -94,8 +125,13 @@ public class TestPortal {
            * Unregister with the SQL injection you introduced, causing 
            * all (or almost all?) registrations to disappear
            */
+          System.out.println("9");
+
+         System.out.println(c.unregister("4444444444", "CCC555' OR 'a' = 'a"));
+        pause();
 
 
+         
 
 
             /* 

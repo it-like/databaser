@@ -351,7 +351,7 @@ INSERT INTO PrerequisiteCourses VALUES('CCC555', 'CCC444');
 
 
 INSERT INTO LimitedCourses VALUES ('CCC222',3); -- changed as there are 3 students registered to the course
-INSERT INTO LimitedCourses VALUES ('CCC333',3); -- -//-
+INSERT INTO LimitedCourses VALUES ('CCC333',2); -- -//-
 
 INSERT INTO Classifications VALUES ('math');
 INSERT INTO Classifications VALUES ('research');
