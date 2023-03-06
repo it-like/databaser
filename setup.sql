@@ -342,6 +342,7 @@ INSERT INTO Courses VALUES ('CCC222','C2',20,'Dep1');
 INSERT INTO Courses VALUES ('CCC333','C3',30,'Dep1');
 INSERT INTO Courses VALUES ('CCC444','C4',60,'Dep1');
 INSERT INTO Courses VALUES ('CCC555','C5',50,'Dep1');
+INSERT INTO Courses VALUES ('CCC666','C6',30,'Dep2'); --Test for java
 INSERT INTO Courses VALUES ('CCC777','C7',30,'Dep2'); --epic new math course
 
 
@@ -350,8 +351,9 @@ INSERT INTO PrerequisiteCourses VALUES('CCC777', 'CCC444');
 INSERT INTO PrerequisiteCourses VALUES('CCC555', 'CCC444');
 
 
-INSERT INTO LimitedCourses VALUES ('CCC222',3); -- changed as there are 3 students registered to the course
+INSERT INTO LimitedCourses VALUES ('CCC222',1); -- changed as there are 3 students registered to the course
 INSERT INTO LimitedCourses VALUES ('CCC333',2); -- -//-
+INSERT INTO LimitedCourses VALUES ('CCC666',1);
 
 INSERT INTO Classifications VALUES ('math');
 INSERT INTO Classifications VALUES ('research');
@@ -382,6 +384,9 @@ INSERT INTO Registered VALUES ('5555555555','CCC222');
 INSERT INTO Registered VALUES ('5555555555','CCC333');
 INSERT INTO Registered VALUES ('6666666666','CCC333');
 
+INSERT INTO Registered VALUES ('2222222222','CCC666');
+INSERT INTO Registered VALUES ('6666666666','CCC666'); --for java
+
 INSERT INTO Taken VALUES('4444444444','CCC111','5');
 INSERT INTO Taken VALUES('4444444444','CCC222','5');
 INSERT INTO Taken VALUES('4444444444','CCC333','5');
@@ -396,7 +401,14 @@ INSERT INTO Taken VALUES('6666666666','CCC444', '3');
 INSERT INTO Taken VALUES('7777777777','CCC333', '3'); 
 
 
+
+
 INSERT INTO WaitingList VALUES('6666666666','CCC222',1);
+
+
 INSERT INTO WaitingList VALUES('3333333333','CCC222',2);
 INSERT INTO WaitingList VALUES('3333333333','CCC333',1);
 
+
+INSERT INTO WaitingList VALUES('3333333333','CCC666',1);
+INSERT INTO WaitingList VALUES('7777777777','CCC666',2); -- for java
