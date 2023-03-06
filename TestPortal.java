@@ -80,7 +80,7 @@ public class TestPortal {
 
          System.out.println(c.unregister("2222222222", "CCC222"));
          System.out.println(c.register("2222222222", "CCC222"));
-         System.out.println("hur får jag fram waitinglist för en kurs härifrån????");
+         prettyPrint("2222222222");
          pause();
 
 
@@ -112,9 +112,9 @@ public class TestPortal {
            * being registered as a result.
            */
           System.out.println("8");
-
-         System.out.println(c.unregister("5555555555", "CCC333"));
-         System.out.println("Hur tar jag fram waitinglist? Idk");
+          prettyPrint(c.getInfo("3333333333"));
+         System.out.println(c.unregister("2222222222", "CCC666"));
+         prettyPrint(c.getInfo("3333333333"));
          pause();
 
 
@@ -126,8 +126,9 @@ public class TestPortal {
            * all (or almost all?) registrations to disappear
            */
           System.out.println("9");
-
+          prettyPrint(c.getInfo("6666666666"));
          System.out.println(c.unregister("4444444444", "CCC555' OR 'a' = 'a"));
+         prettyPrint(c.getInfo("6666666666"));
         pause();
 
 
@@ -165,8 +166,8 @@ public class TestPortal {
    // It is used only to avoid relying on additional libraries.
    // If you are a student, please avert your eyes.
    public static void prettyPrint(String json){
-      System.out.print("Raw JSON:");
-      System.out.println(json);
+      //System.out.print("Raw JSON:");
+      //System.out.println(json);
       System.out.println("Pretty-printed (possibly broken):");
       
       int indent = 0;
