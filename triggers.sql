@@ -36,6 +36,7 @@ RETURNS TRIGGER AS $$
                 RAISE NOTICE 'Student registered % to course %', NEW.student, NEW.course;   
                 INSERT INTO registered VALUES(NEW.student, NEW.course );                                    -- Register student on course
         END IF;
+
         RETURN NEW; 
     END $$
 LANGUAGE PLPGSQL;
@@ -58,7 +59,7 @@ RETURNS TRIGGER AS $$
 
         IF OLD.student NOT IN (SELECT student FROM Registrations where course = OLD.course) 
             THEN    
-                RAISE NOTICE '% is not in this course.----------', OLD.student;  
+                RAISE EXCEPTION '% is not registered to this course %', OLD.student, OLD.course;  
         END IF;
 
         IF  (studentsRegisteredOnCourse = courseCapacity) 
