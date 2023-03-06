@@ -55,7 +55,7 @@ public class PortalConnection {
       try(Statement s = conn.createStatement();){
         int deletedRows = s.executeUpdate("DELETE FROM Registrations WHERE student = '"+student+"' AND course = '"+courseCode+"'");
         if (deletedRows == 0) {
-         throw new SQLException();
+         return "Error, the student "+student+" is not registred on "+courseCode+"";
        }
         }
       catch (SQLException e) {
