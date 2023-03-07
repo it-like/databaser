@@ -4,7 +4,7 @@ INSERT INTO Registrations VALUES ('9999999999', 'CCC111');
 
 -- TEST #2: Register an already registered student
 -- EXPECTED OUTCOME: Fail
---INSERT INTO Registered VALUES ('9999999999','CCC111');
+INSERT INTO Registrations VALUES ('9999999999','CCC111');
 
 -- TEST #3: Registered to a limited course
 -- EXPECTED OUTCOME: Pass
@@ -40,7 +40,7 @@ INSERT INTO Registrations VALUES('4444444444','CCC777');
 
 --TEST #11: register to a course with unmet prerequisites
 --EXPECTED OUTCOME : fail
---INSERT INTO Registrations VALUES('7777777777','CCC777');
+INSERT INTO Registrations VALUES('7777777777','CCC777');
 
 --TEST #12: register to a course that has not been taken 
 --EXPRECTED OUTCOME: pass

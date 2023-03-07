@@ -119,7 +119,7 @@ CREATE TABLE RecommendedBranch(
 
 CREATE TABLE Registered(
     student TEXT,
-    course CHAR(6),
+    course CHAR(6) ,
     PRIMARY KEY (student, course),
     FOREIGN KEY (student) REFERENCES Students (idnr),
     FOREIGN KEY (course) REFERENCES Courses (code)
