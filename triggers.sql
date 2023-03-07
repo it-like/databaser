@@ -9,8 +9,8 @@ RETURNS TRIGGER AS $$
     DECLARE getQueuePosition INT;
     BEGIN   
         IF EXISTS (SELECT code FROM PrerequisiteCourses WHERE code = NEW.course)
-            THEN IF ((SELECT prerequisitecourse FROM PrerequisiteCourses where code = NEW.course) NOT IN (SELECT course FROM PassedCourses WHERE PassedCourses.student = NEW.student))
-                     THEN RAISE EXCEPTION 'The student % have not met the prerequisites for this course', NEW.student;
+THEN IF EXISTS ((SELECT prerequisitecourse FROM PrerequisiteCourses where code = NEW.course  AND prerequisitecourse NOT IN (SELECT course FROM PassedCourses WHERE PassedCourses.student = NEW.student)))
+                    THEN RAISE EXCEPTION 'The student % have not met the prerequisites for this course', NEW.student;
             END IF;
         END IF;
         IF EXISTS (SELECT course FROM Registered where course = NEW.course AND student = NEW.student)
